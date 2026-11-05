@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock Boutique</title>
+<style>
+body{font-family:sans-serif;margin:0;padding:16px;background:#f4f4f4}
+h1{font-size:20px}
+.box,.item{background:#fff;padding:12px;border-radius:8px;margin-bottom:10px}
+input,button{width:100%;padding:10px;margin:4px 0;font-size:16px;box-sizing:border-box}
+button{background:#1a7f37;color:#fff;border:0;border-radius:6px}
+.item{border-left:6px solid #1a7f37}
+.item.soon{border-color:orange}
+.item.expired{border-color:red}
+.del{background:#c0392b;width:auto;padding:6px 12px;font-size:14px}
+</style>
+</head>
+<body>
+<h1>Stock Boutique : produits qui expirent</h1>
+<div class="box">
+<input id="nom" placeholder="Nom du produit">
+<input id="qte" type="number" placeholder="Quantité">
+<label>Date d'expiration</label>
+<input id="date" type="date">
+<button onclick="ajouter()">Ajouter</button>
+</div>
+<div id="liste"></div>
+<script>
+let produits = [];
+try { produits = JSON.parse(localStorage.getItem("produits")) || []; } catch (e) { produits = []; }
+
+function sauver() {
+  try { localStorage.setItem("produits", JSON.stringify(produits)); } catch (e) {}
+}
+
+function ajouter() {
+  const nom = document.getElementById("nom").value.trim();
+  const qte = document.getElementById("qte").value;
+  const date = document.getElementById("date").value;
+  if (!nom || !date) { alert("Écris le nom et la date d'expiration."); return; }
+  produits.push({ nom: nom, qte: qte, date: date });
+  sauver();
+  document.getElementById("nom").value = "";
+  document.getElementById("qte").value = "";
+  document.getElementById("date").value = "";
+  afficher();
+}
+
+function supprimer(i) {
+  produits.splice(i, 1);
+  sauver();
+  afficher();
+}
+
+function afficher() {
+  const liste = document.getElementById("liste");
+  liste.innerHTML = "";
+  const auj = new Date();
+  auj.setHours(0, 0, 0, 0);
+  const tri = produits.map((p, i) => ({ p: p, i: i }))
+    .sort((a, b) => a.p.date.localeCompare(b.p.date));
+  if (tri.length === 0) { liste.textContent = "Aucun produit pour le moment."; return; }
+  tri.forEach(function (x) {
+    const jours = Math.round((new Date(x.p.date + "T00:00:00") - auj) / 86400000);
+    let classe = "item", texte;
+    if (jours < 0) { classe += " expired"; texte = "Expiré depuis " + (-jours) + " jour(s)"; }
+    else if (jours <= 30) { classe += " soon"; texte = "Expire dans " + jours + " jour(s)"; }
+    else { texte = "Expire dans " + jours + " jours"; }
+    const div = document.createElement("div");
+    div.className = classe;
+    const titre = document.createElement("b");
+    titre.textContent = x.p.nom + (x.p.qte ? " (x" + x.p.qte + ")" : "");
+    const info = document.createElement("div");
+    info.textContent = texte + " : " + x.p.date;
+    const btn = document.createElement("button");
+    btn.className = "del";
+    btn.textContent = "Supprimer";
+    btn.onclick = function () { supprimer(x.i); };
+    div.appendChild(titre);
+    div.appendChild(info);
+    div.appendChild(btn);
+    liste.appendChild(div);
+  });
+}
+afficher();
+</script>
+</body>
+</html>
