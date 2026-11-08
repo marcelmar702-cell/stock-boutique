@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dukyo</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--txt:#1b2430;--bord:#ccc}
+:root[data-theme="dark"]{--bg:#12161c;--card:#1d242d;--txt:#e8edf3;--bord:#3a4553}
+body{font-family:sans-serif;max-width:460px;margin:0 auto;padding:16px;background:var(--bg);color:var(--txt)}
+h1{color:#1e63d6;text-align:center;margin:8px 0}
+h1 span{color:#f58220}
+input,button{width:100%;padding:11px;margin:5px 0;font-size:16px;box-sizing:border-box;border-radius:8px;border:1px solid var(--bord)}
+input{background:var(--card);color:var(--txt)}
+button{background:#1e63d6;color:#fff;border:0}
+button.alt{background:#f58220}
+button.gris{background:#777}
+button.petit{width:auto;padding:6px 10px;margin:0 0 0 6px;font-size:14px}
+#msg{color:#e03030;text-align:center;min-height:20px}
+.box{background:var(--card);padding:14px;border-radius:12px;margin-bottom:12px}
+.barre{display:flex;gap:8px}
+.barre button{flex:1;background:var(--card);color:var(--txt);border:1px solid var(--bord);margin:0}
+.barre button.on{background:#1e63d6;color:#fff}
+.ligne{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bord)}
+.rouge{color:#e03030;font-weight:bold}
+.orange{color:#f58220;font-weight:bold}
+.vert{color:#2a9d4a}
+.alerte{background:#f5822033;border-radius:8px;padding:8px;margin:8px 0}
+ol{padding-left:20px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="barre">
+  <button id="bFr" onclick="langue('fr');afficher()">Français</button>
+  <button id="bSw" onclick="langue('sw');afficher()">Kiswahili</button>
+  <button onclick="theme()">🌓</button>
+</div>
+<h1>Duk<span>yo</span></h1>
+<p style="text-align:center" data-t="slogan"></p>
+<div id="msg"></div>
+
+<div id="auth" style="display:none">
+  <div class="box">
+    <input id="email" type="email" data-p="email">
+    <input id="pass" type="password" data-p="pass">
+    <button onclick="connecter()" data-t="login"></button>
+    <button class="alt" onclick="inscrire()" data-t="signup"></button>
+  </div>
+  <div class="box">
+    <b data-t="guideTitre"></b>
+    <ol><li data-t="g1"></li><li data-t="g2"></li><li data-t="g3"></li></ol>
+  </div>
+</div>
+
+<div id="creer" class="box" style="display:none">
+  <p data-t="bienvenue"></p>
+  <input id="nomMagasin" data-p="nomMag">
+  <button onclick="creerMagasin()" data-t="creerMag"></button>
+  <button class="gris" onclick="sortir()" data-t="logout"></button>
+</div>
+
+<div id="app" style="display:none">
+  <h2 id="titre"></h2>
+  <div class="barre">
+    <button id="tProd" onclick="onglet('pProd')" data-t="produits"></button>
+    <button id="tDet" onclick="onglet('pDet')" data-t="dettes"></button>
+    <button id="tVen" onclick="onglet('pVen')" data-t="ventes"></button>
+  </div>
+
+  <div id="pProd" class="box">
+    <input id="pNom" data-p="nomProd">
+    <input id="pQte" type="number" data-p="qte">
+    <label data-t="dateExp"></label>
+    <input id="pDate" type="date">
+    <button onclick="ajoutProd()" data-t="ajouter"></button>
+    <div id="alerteProd"></div>
+    <div id="listeProd"></div>
+  </div>
+
+  <div id="pDet" class="box" style="display:none">
+    <input id="dNom" data-p="client">
+    <input id="dMont" type="number" data-p="montant">
+    <button onclick="ajoutDette()" data-t="ajouter"></button>
+    <p><b id="totDet"></b></p>
+    <div id="listeDet"></div>
+  </div>
+
+  <div id="pVen" class="box" style="display:none">
+    <input id="vNom" data-p="nomProd">
+    <input id="vMont" type="number" data-p="montant">
+    <button onclick="ajoutVente()" data-t="ajouter"></button>
+    <p><b id="totVen"></b></p>
+    <div id="listeVen"></div>
+  </div>
+  <button class="gris" onclick="sortir()" data-t="logout"></button>
+</div>
+
+<div id="admin" class="box" style="display:none">
+  <h2 data-t="adminTitre"></h2>
+  <div id="listeAdmin"></div>
+  <button class="gris" onclick="sortir()" data-t="logout"></button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const db = supabase.createClient(
+  "https://jvocjjrjfioqwxfzplnb.supabase.co",
+  "sb_publishable_imOLQTOIvhydb7Z4PjmjSw_CijN4k7W"
+);
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let shopId = null;
+
+const T = {
+fr:{slogan:"Gérez mieux. Développez plus.",email:"Email",pass:"Mot de passe (6 caractères min.)",
+ login:"Se connecter",signup:"Créer mon compte",bienvenue:"Bienvenue ! Donne un nom à ton magasin :",
+ nomMag:"Nom du magasin",creerMag:"Créer mon magasin",logout:"Se déconnecter",
+ nomReq:"Écris le nom.",guideTitre:"Comment ça marche",
+ g1:"Crée ton compte avec ton email et un mot de passe.",
+ g2:"Écris le nom de ton magasin.",
+ g3:"Ajoute tes produits, les dettes de tes clients et tes ventes. Dukyo te montre les produits qui bientôt expirent.",
+ produits:"Produits",dettes:"Dettes",ventes:"Ventes",nomProd:"Nom du produit",qte:"Quantité",
+ dateExp:"Date d’expiration",ajouter:"Ajouter",client:"Nom du client",montant:"Montant (FC)",
+ expire:"Expiré",jours:"j restants",suppr:"Supprimer",paye:"Payé",totDet:"Total des dettes impayées : ",
+ totVen:"Total des ventes d’aujourd’hui : ",adminTitre:"Dukyo : tous les magasins",
+ alerte:"⚠️ Produits qui expirent dans 30 jours ou moins : ",rien:"Rien pour l’instant.",
+ prodN:"produits",detN:"dettes impayées"},
+sw:{slogan:"Simamia vizuri. Kua zaidi.",email:"Barua pepe",pass:"Nenosiri (herufi 6 au zaidi)",
+ login:"Ingia",signup:"Fungua akaunti",bienvenue:"Karibu! Andika jina la duka lako:",
+ nomMag:"Jina la duka",creerMag:"Fungua duka langu",logout:"Toka",
+ nomReq:"Andika jina.",guideTitre:"Jinsi inavyofanya kazi",
+ g1:"Fungua akaunti kwa barua pepe na nenosiri.",
+ g2:"Andika jina la duka lako.",
+ g3:"Ongeza bidhaa zako, madeni ya wateja na mauzo. Dukyo inakuonyesha bidhaa zinazokaribia kuisha muda.",
+ produits:"Bidhaa",dettes:"Madeni",ventes:"Mauzo",nomProd:"Jina la bidhaa",qte:"Idadi",
+ dateExp:"Tarehe ya kuisha muda",ajouter:"Ongeza",client:"Jina la mteja",montant:"Kiasi (FC)",
+ expire:"Imeisha muda",jours:"siku zimebaki",suppr:"Futa",paye:"Amelipa",totDet:"Jumla ya madeni yasiyolipwa: ",
+ totVen:"Jumla ya mauzo ya leo: ",adminTitre:"Dukyo: maduka yote",
+ alerte:"⚠️ Bidhaa zinazokaribia kuisha muda (siku 30 au chini): ",rien:"Hakuna kitu bado.",
+ prodN:"bidhaa",detN:"madeni yasiyolipwa"}
+};
+let L = localStorage.getItem("lang") || "fr";
+const t = k => T[L][k];
+
+function langue(l){
+  L = l; localStorage.setItem("lang", l);
+  document.documentElement.lang = l;
+  document.querySelectorAll("[data-t]").forEach(e => e.textContent = T[l][e.dataset.t]);
+  document.querySelectorAll("[data-p]").forEach(e => e.placeholder = T[l][e.dataset.p]);
+  $("bFr").className = l === "fr" ? "on" : "";
+  $("bSw").className = l === "sw" ? "on" : "";
+}
+function theme(){
+  const cur = document.documentElement.dataset.theme ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const nv = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = nv;
+  localStorage.setItem("theme", nv);
+}
+const th = localStorage.getItem("theme");
+if (th) document.documentElement.dataset.theme = th;
+
+function msg(m){ $("msg").textContent = m || ""; }
+function onglet(id){
+  ["pProd","pDet","pVen"].forEach(p => $(p).style.display = p === id ? "block" : "none");
+}
+
+async function inscrire(){
+  msg("");
+  const { error } = await db.auth.signUp({ email: $("email").value, password: $("pass").value });
+  if (error) return msg(error.message);
+  afficher();
+}
+async function connecter(){
+  msg("");
+  const { error } = await db.auth.signInWithPassword({ email: $("email").value, password: $("pass").value });
+  if (error) return msg(error.message);
+  afficher();
+}
+async function sortir(){ await db.auth.signOut(); afficher(); }
+
+async function creerMagasin(){
+  msg("");
+  const nom = $("nomMagasin").value.trim();
+  if (!nom) return msg(t("nomReq"));
+  const { error } = await db.from("shops").insert({ name: nom });
+  if (error) return msg(error.message);
+  afficher();
+}
+
+/* ---------- Produits ---------- */
+async function ajoutProd(){
+  msg("");
+  const name = $("pNom").value.trim();
+  if (!name) return msg(t("nomReq"));
+  const { error } = await db.from("products").insert({
+    shop_id: shopId, name, quantity: parseInt($("pQte").value) || 0, expiry_date: $("pDate").value || null });
+  if (error) return msg(error.message);
+  $("pNom").value = $("pQte").value = $("pDate").value = "";
+  chargerProd();
+}
+async function chargerProd(){
+  const { data } = await db.from("products").select("*").eq("shop_id", shopId)
+    .order("expiry_date", { ascending: true, nullsFirst: false });
+  const auj = new Date(); auj.setHours(0,0,0,0);
+  let proches = 0, html = "";
+  (data || []).forEach(p => {
+    let etat = "", cls = "";
+    if (p.expiry_date) {
+      const j = Math.round((new Date(p.expiry_date + "T00:00:00") - auj) / 864e5);
+      if (j < 0) { etat = t("expire"); cls = "rouge"; proches++; }
+      else { etat = j + " " + t("jours"); if (j <= 30) { cls = "orange"; proches++; } }
+    }
+    html += '<div class="ligne"><span>' + esc(p.name) + ' (' + p.quantity + ')<br><small class="' + cls + '">'
+      + esc(p.expiry_date || "") + ' ' + etat + '</small></span>'
+      + '<button class="petit gris" onclick="suppr(\'products\',\'' + p.id + '\')">' + t("suppr") + '</button></div>';
+  });
+  $("alerteProd").innerHTML = proches ? '<div class="alerte">' + t("alerte") + proches + '</div>' : "";
+  $("listeProd").innerHTML = html || t("rien");
+}
+
+/* ---------- Dettes ---------- */
+async function ajoutDette(){
+  msg("");
+  const c = $("dNom").value.trim();
+  if (!c) return msg(t("nomReq"));
+  const { error } = await db.from("debts").insert({ shop_id: shopId, customer_name: c, amount: parseFloat($("dMont").value) || 0 });
+  if (error) return msg(error.message);
+  $("dNom").value = $("dMont").value = "";
+  chargerDet();
+}
+async function payer(id){ await db.from("debts").update({ paid: true }).eq("id", id); chargerDet(); }
+async function chargerDet(){
+  const { data } = await db.from("debts").select("*").eq("shop_id", shopId).order("created_at", { ascending: false });
+  let total = 0, html = "";
+  (data || []).forEach(d => {
+    if (!d.paid) total += Number(d.amount);
+    html += '<div class="ligne"><span class="' + (d.paid ? "vert" : "") + '">' + esc(d.customer_name) + ' : ' + d.amount + ' FC</span><span>'
+      + (d.paid ? "✔" : '<button class="petit" onclick="payer(\'' + d.id + '\')">' + t("paye") + '</button>')
+      + '<button class="petit gris" onclick="suppr(\'debts\',\'' + d.id + '\')">' + t("suppr") + '</button></span></div>';
+  });
+  $("totDet").textContent = t("totDet") + total + " FC";
+  $("listeDet").innerHTML = html || t("rien");
+}
+
+/* ---------- Ventes ---------- */
+async function ajoutVente(){
+  msg("");
+  const n = $("vNom").value.trim();
+  if (!n) return msg(t("nomReq"));
+  const { error } = await db.from("sales").insert({ shop_id: shopId, product_name: n, amount: parseFloat($("vMont").value) || 0 });
+  if (error) return msg(error.message);
+  $("vNom").value = $("vMont").value = "";
+  chargerVen();
+}
+async function chargerVen(){
+  const debut = new Date(); debut.setHours(0,0,0,0);
+  const { data } = await db.from("sales").select("*").eq("shop_id", shopId)
+    .gte("created_at", debut.toISOString()).order("created_at", { ascending: false });
+  let total = 0, html = "";
+  (data || []).forEach(v => {
+    total += Number(v.amount);
+    html += '<div class="ligne"><span>' + esc(v.product_name) + ' : ' + v.amount + ' FC</span>'
+      + '<button class="petit gris" onclick="suppr(\'sales\',\'' + v.id + '\')">' + t("suppr") + '</button></div>';
+  });
+  $("totVen").textContent = t("totVen") + total + " FC";
+  $("listeVen").innerHTML = html || t("rien");
+}
+
+async function suppr(table, id){
+  await db.from(table).delete().eq("id", id);
+  chargerProd(); chargerDet(); chargerVen();
+}
+
+/* ---------- Propriétaire Dukyo ---------- */
+async function chargerAdmin(){
+  const { data: shops } = await db.from("shops").select("id,name").order("created_at");
+  const { data: prods } = await db.from("products").select("shop_id");
+  const { data: dets } = await db.from("debts").select("shop_id").eq("paid", false);
+  let html = "";
+  (shops || []).forEach(s => {
+    const np = (prods || []).filter(x => x.shop_id === s.id).length;
+    const nd = (dets || []).filter(x => x.shop_id === s.id).length;
+    html += '<div class="ligne"><span>' + esc(s.name) + '</span><small>' + np + ' ' + t("prodN") + ', ' + nd + ' ' + t("detN") + '</small></div>';
+  });
+  $("listeAdmin").innerHTML = html || t("rien");
+}
+
+async function afficher(){
+  ["auth","creer","app","admin"].forEach(i => $(i).style.display = "none");
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { $("auth").style.display = "block"; return; }
+  const { data: estAdmin } = await db.rpc("is_admin");
+  if (estAdmin === true) { $("admin").style.display = "block"; chargerAdmin(); return; }
+  const { data, error } = await db.from("shops").select("id,name").eq("owner_id", session.user.id).limit(1);
+  if (error) { msg(error.message); $("auth").style.display = "block"; return; }
+  if (data.length === 0) { $("creer").style.display = "block"; return; }
+  shopId = data[0].id;
+  $("titre").textContent = data[0].name;
+  $("app").style.display = "block";
+  chargerProd(); chargerDet(); chargerVen();
+}
+langue(L);
+afficher();
+</script>
+</body>
+</html>
