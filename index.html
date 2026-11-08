@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dukyo</title>
+<style>
+body{font-family:sans-serif;max-width:420px;margin:0 auto;padding:20px;background:#f4f7fb}
+h1{color:#1e63d6;text-align:center}
+h1 span{color:#f58220}
+input,button{width:100%;padding:12px;margin:6px 0;font-size:16px;box-sizing:border-box;border-radius:8px;border:1px solid #ccc}
+button{background:#1e63d6;color:#fff;border:0}
+button.alt{background:#f58220}
+button.gris{background:#888}
+#msg{color:#c00;text-align:center;min-height:20px}
+.box{background:#fff;padding:16px;border-radius:12px}
+</style>
+</head>
+<body>
+<h1>Duk<span>yo</span></h1>
+<p style="text-align:center">Gérez mieux. Développez plus.</p>
+<div id="msg"></div>
+
+<div id="auth" class="box">
+  <input id="email" type="email" placeholder="Email">
+  <input id="pass" type="password" placeholder="Mot de passe (6 caractères min.)">
+  <button onclick="connecter()">Se connecter</button>
+  <button class="alt" onclick="inscrire()">Créer mon compte</button>
+</div>
+
+<div id="creer" class="box" style="display:none">
+  <p>Bienvenue ! Donne un nom à ton magasin :</p>
+  <input id="nomMagasin" placeholder="Nom du magasin">
+  <button onclick="creerMagasin()">Créer mon magasin</button>
+  <button class="gris" onclick="sortir()">Se déconnecter</button>
+</div>
+
+<div id="accueil" class="box" style="display:none">
+  <h2 id="titre"></h2>
+  <p>Ton compte magasin est prêt. Prochaine étape : produits, dettes et ventes.</p>
+  <button class="gris" onclick="sortir()">Se déconnecter</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const db = supabase.createClient(
+  "https://jvocjjrjfioqwxfzplnb.supabase.co",
+  "sb_publishable_imOLQTOIvhydb7Z4PjmjSw_CijN4k7W"
+);
+const $ = id => document.getElementById(id);
+function msg(t){ $("msg").textContent = t || ""; }
+
+async function inscrire(){
+  msg("");
+  const { error } = await db.auth.signUp({ email: $("email").value, password: $("pass").value });
+  if (error) return msg(error.message);
+  afficher();
+}
+async function connecter(){
+  msg("");
+  const { error } = await db.auth.signInWithPassword({ email: $("email").value, password: $("pass").value });
+  if (error) return msg(error.message);
+  afficher();
+}
+async function sortir(){ await db.auth.signOut(); afficher(); }
+
+async function creerMagasin(){
+  msg("");
+  const nom = $("nomMagasin").value.trim();
+  if (!nom) return msg("Écris le nom du magasin.");
+  const { error } = await db.from("shops").insert({ name: nom });
+  if (error) return msg(error.message);
+  afficher();
+}
+
+async function afficher(){
+  $("auth").style.display = $("creer").style.display = $("accueil").style.display = "none";
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { $("auth").style.display = "block"; return; }
+  const { data, error } = await db.from("shops").select("name").limit(1);
+  if (error) { msg(error.message); $("auth").style.display = "block"; return; }
+  if (data.length === 0) { $("creer").style.display = "block"; return; }
+  $("titre").textContent = data[0].name;
+  $("accueil").style.display = "block";
+}
+afficher();
+</script>
+</body>
+</html>
