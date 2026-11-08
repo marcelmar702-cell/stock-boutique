@@ -404,3 +404,79 @@ afficher();
 </script>
 </body>
 </html>
+<style>
+.vg{display:none!important}
+#eau{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;animation:apparait 2.5s ease both}
+.box{animation:entree .7s ease both,flotte 8s ease-in-out .9s infinite;box-shadow:0 10px 28px rgba(8,40,70,.18)}
+.box:nth-of-type(2n){animation-duration:.7s,10s}
+@keyframes flotte{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(.12deg)}}
+</style>
+<canvas id="eau"></canvas>
+<script>
+(function(){
+  var c = document.getElementById("eau");
+  var gl = c.getContext("webgl");
+  if (!gl) { c.style.display = "none"; return; }
+  var vs = "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
+  var fs = [
+    "#ifdef GL_FRAGMENT_PRECISION_HIGH","precision highp float;","#else","precision mediump float;","#endif",
+    "uniform vec2 r;uniform float t;uniform float d;",
+    "void main(){",
+    " vec2 uv=gl_FragCoord.xy/r.y;",
+    " float tm=t*0.22+23.0;",
+    " vec2 p=mod(uv*6.28318*2.2,6.28318)-20.0;",
+    " vec2 i=p;float c=1.0;float inten=0.006;",
+    " for(int n=0;n<4;n++){",
+    "  float tt=tm*(1.0-(3.5/float(n+1)));",
+    "  i=p+vec2(cos(tt-i.x)+sin(tt+i.y),sin(tt-i.y)+cos(tt+i.x));",
+    "  c+=1.0/length(vec2(p.x/(sin(i.x+tt)/inten),p.y/(cos(i.y+tt)/inten)));",
+    " }",
+    " c/=4.0;c=1.17-pow(c,1.4);",
+    " float k=clamp(pow(abs(c),6.0),0.0,1.0);",
+    " vec3 deep=mix(vec3(0.55,0.78,0.92),vec3(0.03,0.12,0.20),d);",
+    " vec3 mid=mix(vec3(0.38,0.66,0.86),vec3(0.05,0.22,0.34),d);",
+    " float g=0.5+0.5*sin(uv.y*3.0+uv.x*1.5+t*0.15);",
+    " vec3 base=mix(deep,mid,g);",
+    " vec3 lum=mix(vec3(0.90,0.97,1.0),vec3(0.35,0.70,0.85),d);",
+    " gl_FragColor=vec4(mix(base,lum,k*0.45),1.0);",
+    "}"
+  ].join("\n");
+  function sh(type, src){
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
+  }
+  var v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs);
+  if (!v || !f) { c.style.display = "none"; return; }
+  var pr = gl.createProgram();
+  gl.attachShader(pr, v); gl.attachShader(pr, f); gl.linkProgram(pr);
+  if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { c.style.display = "none"; return; }
+  gl.useProgram(pr);
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+  var loc = gl.getAttribLocation(pr, "a");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  var U = { r: gl.getUniformLocation(pr, "r"), t: gl.getUniformLocation(pr, "t"), d: gl.getUniformLocation(pr, "d") };
+  function taille(){
+    c.width = Math.max(2, Math.floor(innerWidth * 0.4));
+    c.height = Math.max(2, Math.floor(innerHeight * 0.4));
+    gl.viewport(0, 0, c.width, c.height);
+  }
+  taille(); addEventListener("resize", taille);
+  var reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var dernier = 0, t0 = performance.now();
+  function dessine(now){
+    if (!document.hidden && now - dernier > 33) {
+      dernier = now;
+      gl.uniform2f(U.r, c.width, c.height);
+      gl.uniform1f(U.t, (now - t0) / 1000);
+      gl.uniform1f(U.d, document.documentElement.dataset.theme === "dark" ? 1 : 0);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    if (!reduit) requestAnimationFrame(dessine);
+  }
+  requestAnimationFrame(dessine);
+})();
+</script>
