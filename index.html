@@ -256,4 +256,191 @@ function drawLights(){
     ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI * 2); ctx.fill();
   }
 }
-function animer
+function animerLights(){
+  for (var i = 0; i < lights.length; i++) {
+    var l = lights[i];
+    l.x += l.vx; l.y += l.vy; l.p += l.s;
+    if (l.y < -10) { l.y = vh + 10; l.x = Math.random() * vw; }
+    if (l.x < -10) l.x = vw + 10;
+    if (l.x > vw + 10) l.x = -10;
+  }
+  drawLights();
+  requestAnimationFrame(animerLights);
+}
+function initFond(){
+  readGlow(); buildLights();
+  var rt = null;
+  addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(function(){ buildLights(); if (reduceMotion) drawLights(); }, 150); });
+  if (reduceMotion) drawLights(); else animerLights();
+}
+
+/* ---------- Onde douce au toucher ---------- */
+document.addEventListener("pointerdown", function(e){
+  var b = e.target.closest("button");
+  if (!b) return;
+  var r = b.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2;
+  var d = document.createElement("span");
+  d.className = "onde";
+  d.style.cssText = "width:"+s+"px;height:"+s+"px;left:"+(e.clientX-r.left-s/2)+"px;top:"+(e.clientY-r.top-s/2)+"px";
+  b.appendChild(d);
+  setTimeout(function(){ d.remove(); }, 800);
+});
+
+function msg(m){ $("msg").textContent = m || ""; }
+function onglet(id){
+  ["pProd","pDet","pVen"].forEach(p => $(p).classList.toggle("hidden", p !== id));
+  const map = { pProd:"tProd", pDet:"tDet", pVen:"tVen" };
+  Object.keys(map).forEach(p => $(map[p]).classList.toggle("on", p === id));
+}
+
+async function inscrire(){
+  msg("");
+  const { error } = await db.auth.signUp({ email: $("email").value, password: $("pass").value });
+  if (error) return msg(error.message);
+  afficher();
+}
+async function connecter(){
+  msg("");
+  const { error } = await db.auth.signInWithPassword({ email: $("email").value, password: $("pass").value });
+  if (error) return msg(error.message);
+  afficher();
+}
+async function sortir(){ await db.auth.signOut(); afficher(); }
+
+async function creerMagasin(){
+  msg("");
+  const nom = $("nomMagasin").value.trim();
+  if (!nom) return msg(t("nomReq"));
+  const { error } = await db.from("shops").insert({ name: nom });
+  if (error) return msg(error.message);
+  afficher();
+}
+
+/* ---------- Produits ---------- */
+async function ajoutProd(){
+  msg("");
+  const name = $("pNom").value.trim();
+  if (!name) return msg(t("nomReq"));
+  const { error } = await db.from("products").insert({
+    shop_id: shopId, name, quantity: parseInt($("pQte").value) || 0, expiry_date: $("pDate").value || null });
+  if (error) return msg(error.message);
+  $("pNom").value = $("pQte").value = $("pDate").value = "";
+  chargerProd();
+}
+async function chargerProd(){
+  const { data } = await db.from("products").select("*").eq("shop_id", shopId)
+    .order("expiry_date", { ascending: true, nullsFirst: false });
+  const auj = new Date(); auj.setHours(0,0,0,0);
+  let proches = 0, html = "";
+  (data || []).forEach(p => {
+    let etat = "", cls = "";
+    if (p.expiry_date) {
+      const j = Math.round((new Date(p.expiry_date + "T00:00:00") - auj) / 864e5);
+      if (j < 0) { etat = t("expire"); cls = "rouge"; proches++; }
+      else { etat = j + " " + t("jours"); if (j <= 30) { cls = "orange"; proches++; } }
+    }
+    html += '<div class="ligne"><span>' + esc(p.name) + ' (' + p.quantity + ')<br><small class="' + cls + '">'
+      + esc(p.expiry_date || "") + ' ' + etat + '</small></span>'
+      + '<button class="small" type="button" onclick="suppr(\'products\',\'' + p.id + '\')">' + t("suppr") + '</button></div>';
+  });
+  $("alerteProd").innerHTML = proches ? '<div class="alerte">' + t("alerte") + proches + '</div>' : "";
+  $("listeProd").innerHTML = html || '<p class="sub">' + t("rien") + '</p>';
+}
+
+/* ---------- Dettes ---------- */
+async function ajoutDette(){
+  msg("");
+  const c = $("dNom").value.trim();
+  if (!c) return msg(t("nomReq"));
+  const { error } = await db.from("debts").insert({ shop_id: shopId, customer_name: c, amount: parseFloat($("dMont").value) || 0 });
+  if (error) return msg(error.message);
+  $("dNom").value = $("dMont").value = "";
+  chargerDet();
+}
+async function payer(id){ await db.from("debts").update({ paid: true }).eq("id", id); chargerDet(); }
+async function chargerDet(){
+  const { data } = await db.from("debts").select("*").eq("shop_id", shopId).order("created_at", { ascending: false });
+  let total = 0, html = "";
+  (data || []).forEach(d => {
+    if (!d.paid) total += Number(d.amount);
+    html += '<div class="ligne"><span class="' + (d.paid ? "vert" : "") + '">' + esc(d.customer_name) + ' : ' + d.amount + ' FC</span><span>'
+      + (d.paid ? "✔" : '<button class="small" type="button" onclick="payer(\'' + d.id + '\')">' + t("paye") + '</button>')
+      + '<button class="small" type="button" onclick="suppr(\'debts\',\'' + d.id + '\')">' + t("suppr") + '</button></span></div>';
+  });
+  $("totDet").textContent = t("totDet") + total + " FC";
+  $("listeDet").innerHTML = html || '<p class="sub">' + t("rien") + '</p>';
+}
+
+/* ---------- Ventes ---------- */
+async function ajoutVente(){
+  msg("");
+  const n = $("vNom").value.trim();
+  if (!n) return msg(t("nomReq"));
+  const { error } = await db.from("sales").insert({ shop_id: shopId, product_name: n, amount: parseFloat($("vMont").value) || 0 });
+  if (error) return msg(error.message);
+  $("vNom").value = $("vMont").value = "";
+  chargerVen();
+}
+async function chargerVen(){
+  const debut = new Date(); debut.setHours(0,0,0,0);
+  const { data } = await db.from("sales").select("*").eq("shop_id", shopId)
+    .gte("created_at", debut.toISOString()).order("created_at", { ascending: false });
+  let total = 0, html = "";
+  (data || []).forEach(v => {
+    total += Number(v.amount);
+    html += '<div class="ligne"><span>' + esc(v.product_name) + ' : ' + v.amount + ' FC</span>'
+      + '<button class="small" type="button" onclick="suppr(\'sales\',\'' + v.id + '\')">' + t("suppr") + '</button></div>';
+  });
+  $("totVen").textContent = t("totVen") + total + " FC";
+  $("listeVen").innerHTML = html || '<p class="sub">' + t("rien") + '</p>';
+}
+
+async function suppr(table, id){
+  await db.from(table).delete().eq("id", id);
+  chargerProd(); chargerDet(); chargerVen();
+}
+
+/* ---------- Propriétaire Dukyo ---------- */
+async function chargerAdmin(){
+  const { data: shops } = await db.from("shops").select("id,name").order("created_at");
+  const { data: prods } = await db.from("products").select("shop_id");
+  const { data: dets } = await db.from("debts").select("shop_id").eq("paid", false);
+  let html = "";
+  (shops || []).forEach(s => {
+    const np = (prods || []).filter(x => x.shop_id === s.id).length;
+    const nd = (dets || []).filter(x => x.shop_id === s.id).length;
+    html += '<div class="ligne"><span>' + esc(s.name) + '</span><small>' + np + ' ' + t("prodN") + ', ' + nd + ' ' + t("detN") + '</small></div>';
+  });
+  $("listeAdmin").innerHTML = html || '<p class="sub">' + t("rien") + '</p>';
+}
+
+/* ---------- Bienvenue ---------- */
+function allerApp(){ localStorage.setItem("vu_" + shopId, "1"); afficher(); }
+function ouvrirBienvenue(){
+  $("app").classList.add("hidden");
+  $("bienvenue").classList.remove("hidden");
+}
+
+async function afficher(){
+  ["auth","creer","bienvenue","app","admin"].forEach(i => $(i).classList.add("hidden"));
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { $("auth").classList.remove("hidden"); return; }
+  const { data: estAdmin } = await db.rpc("is_admin");
+  if (estAdmin === true) { $("admin").classList.remove("hidden"); chargerAdmin(); return; }
+  const { data, error } = await db.from("shops").select("id,name").eq("owner_id", session.user.id).limit(1);
+  if (error) { msg(error.message); $("auth").classList.remove("hidden"); return; }
+  if (data.length === 0) { $("creer").classList.remove("hidden"); return; }
+  shopId = data[0].id; shopNom = data[0].name;
+  $("titre").textContent = shopNom;
+  $("wNom").textContent = shopNom;
+  if (!localStorage.getItem("vu_" + shopId)) { $("bienvenue").classList.remove("hidden"); return; }
+  $("app").classList.remove("hidden");
+  chargerProd(); chargerDet(); chargerVen();
+}
+
+langue(L);
+initFond();
+afficher();
+</script>
+</body>
+</html>
