@@ -5,89 +5,125 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dukyo</title>
 <style>
-:root{--bg:#f4f7fb;--card:#fff;--txt:#1b2430;--bord:#ccc}
-:root[data-theme="dark"]{--bg:#12161c;--card:#1d242d;--txt:#e8edf3;--bord:#3a4553}
-body{font-family:sans-serif;max-width:460px;margin:0 auto;padding:16px;background:var(--bg);color:var(--txt)}
-h1{color:#1e63d6;text-align:center;margin:8px 0}
-h1 span{color:#f58220}
-input,button{width:100%;padding:11px;margin:5px 0;font-size:16px;box-sizing:border-box;border-radius:8px;border:1px solid var(--bord)}
-input{background:var(--card);color:var(--txt)}
-button{background:#1e63d6;color:#fff;border:0}
-button.alt{background:#f58220}
+:root{--bg1:#eaf1fb;--bg2:#fdf3e7;--card:rgba(255,255,255,.86);--inp:#fff;--txt:#1b2430;--bord:#c9d3e0}
+:root[data-theme="dark"]{--bg1:#0d1219;--bg2:#1a1410;--card:rgba(29,36,45,.88);--inp:#141a21;--txt:#e8edf3;--bord:#3a4553}
+*{-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,sans-serif;max-width:460px;margin:0 auto;padding:16px;color:var(--txt);
+ min-height:100vh;background:linear-gradient(135deg,var(--bg1),var(--bg2));background-size:200% 200%;animation:fond 14s ease infinite;position:relative;overflow-x:hidden}
+@keyframes fond{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
+body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(60px);opacity:.35;z-index:0;pointer-events:none}
+body::before{width:240px;height:240px;background:#1e63d6;top:-60px;left:-80px;animation:flotte 9s ease-in-out infinite}
+body::after{width:220px;height:220px;background:#f58220;bottom:-60px;right:-70px;animation:flotte 11s ease-in-out infinite reverse}
+@keyframes flotte{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}
+body>*{position:relative;z-index:1}
+.haut{display:flex;justify-content:space-between;align-items:center}
+.sw{position:relative;display:flex;align-items:center;justify-content:space-between;width:74px;height:36px;padding:0 9px;border-radius:20px;background:var(--card);border:1px solid var(--bord);cursor:pointer;margin:0;font-size:13px;font-weight:700;color:var(--txt)}
+.sw i{position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ffd76a,#f58220);box-shadow:0 0 10px #ffb84a99;transition:transform .35s cubic-bezier(.5,1.6,.5,1)}
+.sw span{position:relative;z-index:1}
+html[data-theme="dark"] #swTh i{transform:translateX(38px)}
+html[data-l="sw"] #swLg i{transform:translateX(38px)}
+.logoWrap{position:relative;text-align:center;margin:14px 0 4px}
+.logo{display:inline-block;font-size:48px;font-weight:900;letter-spacing:2px;
+ background:linear-gradient(110deg,#1e63d6 0%,#1e63d6 34%,#ffd76a 46%,#fffbe0 50%,#ffd76a 54%,#f58220 66%,#f58220 100%);
+ background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+ animation:brille 3.6s linear infinite;filter:drop-shadow(0 0 8px rgba(255,190,70,.45))}
+@keyframes brille{0%{background-position:150% 0}100%{background-position:-60% 0}}
+.star{position:absolute;color:#ffd76a;font-size:14px;animation:scint 2.4s ease-in-out infinite;opacity:0}
+.s1{left:22%;top:4px}.s2{right:20%;top:30px;animation-delay:.8s}.s3{left:46%;top:-6px;animation-delay:1.5s}
+@keyframes scint{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(90deg)}}
+.slogan{text-align:center;margin:0 0 12px;opacity:.85}
+label{display:block;font-size:12px;opacity:.75;margin:8px 0 0}
+input,button{width:100%;padding:12px;margin:4px 0;font-size:16px;box-sizing:border-box;border-radius:10px;border:1px solid var(--bord)}
+input{background:var(--inp);color:var(--txt);transition:box-shadow .2s,border-color .2s}
+input:focus{outline:none;border-color:#1e63d6;box-shadow:0 0 0 3px #1e63d644}
+button{background:linear-gradient(135deg,#1e63d6,#3b82f6);color:#fff;border:0;font-weight:600;cursor:pointer;transition:transform .15s,box-shadow .2s}
+button:hover{box-shadow:0 4px 14px #1e63d655}
+button:active{transform:scale(.96)}
+button.alt{background:linear-gradient(135deg,#f58220,#ffb347)}
 button.gris{background:#777}
 button.petit{width:auto;padding:6px 10px;margin:0 0 0 6px;font-size:14px}
 #msg{color:#e03030;text-align:center;min-height:20px}
-.box{background:var(--card);padding:14px;border-radius:12px;margin-bottom:12px}
-.barre{display:flex;gap:8px}
-.barre button{flex:1;background:var(--card);color:var(--txt);border:1px solid var(--bord);margin:0}
-.barre button.on{background:#1e63d6;color:#fff}
-.ligne{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bord)}
+.box{background:var(--card);backdrop-filter:blur(8px);padding:14px;border-radius:16px;margin-bottom:12px;box-shadow:0 6px 24px #0000001f;animation:monte .5s ease both}
+@keyframes monte{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{flex:1;margin:0;background:var(--card);color:var(--txt);border:1px solid var(--bord)}
+.tabs button.on{background:linear-gradient(135deg,#1e63d6,#3b82f6);color:#fff}
+.ligne{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bord);animation:glisse .35s ease both}
+@keyframes glisse{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
 .rouge{color:#e03030;font-weight:bold}
 .orange{color:#f58220;font-weight:bold}
 .vert{color:#2a9d4a}
-.alerte{background:#f5822033;border-radius:8px;padding:8px;margin:8px 0}
-ol{padding-left:20px;line-height:1.5}
+.alerte{background:#f5822033;border-radius:10px;padding:8px;margin:8px 0}
+.etape{display:flex;gap:10px;padding:8px 0;line-height:1.4}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="barre">
-  <button id="bFr" onclick="langue('fr');afficher()">Français</button>
-  <button id="bSw" onclick="langue('sw');afficher()">Kiswahili</button>
-  <button onclick="theme()">🌓</button>
+<div class="haut">
+  <button class="sw" id="swLg" onclick="basculer()"><span>FR</span><span>SW</span><i></i></button>
+  <button class="sw" id="swTh" onclick="theme()"><span>☀️</span><span>🌙</span><i></i></button>
 </div>
-<h1>Duk<span>yo</span></h1>
-<p style="text-align:center" data-t="slogan"></p>
+<div class="logoWrap">
+  <span class="star s1">✦</span><span class="star s2">✦</span><span class="star s3">✦</span>
+  <div class="logo">Dukyo</div>
+</div>
+<p class="slogan" data-t="slogan"></p>
 <div id="msg"></div>
 
-<div id="auth" style="display:none">
-  <div class="box">
-    <input id="email" type="email" data-p="email">
-    <input id="pass" type="password" data-p="pass">
-    <button onclick="connecter()" data-t="login"></button>
-    <button class="alt" onclick="inscrire()" data-t="signup"></button>
-  </div>
-  <div class="box">
-    <b data-t="guideTitre"></b>
-    <ol><li data-t="g1"></li><li data-t="g2"></li><li data-t="g3"></li></ol>
-  </div>
+<div id="auth" class="box" style="display:none">
+  <label data-t="lEmail"></label>
+  <input id="email" type="email">
+  <label data-t="lPass"></label>
+  <input id="pass" type="password">
+  <button onclick="connecter()" data-t="login"></button>
+  <button class="alt" onclick="inscrire()" data-t="signup"></button>
 </div>
 
 <div id="creer" class="box" style="display:none">
-  <p data-t="bienvenue"></p>
-  <input id="nomMagasin" data-p="nomMag">
+  <label data-t="lNomMag"></label>
+  <input id="nomMagasin">
   <button onclick="creerMagasin()" data-t="creerMag"></button>
   <button class="gris" onclick="sortir()" data-t="logout"></button>
 </div>
 
+<div id="bienv" class="box" style="display:none">
+  <h2 data-t="bTitre"></h2>
+  <p data-t="bTexte"></p>
+  <div class="etape"><span>📦</span><span data-t="b1"></span></div>
+  <div class="etape"><span>📒</span><span data-t="b2"></span></div>
+  <div class="etape"><span>💰</span><span data-t="b3"></span></div>
+  <div class="etape"><span>🚀</span><span data-t="b4"></span></div>
+  <button onclick="commencer()" data-t="bBtn"></button>
+</div>
+
 <div id="app" style="display:none">
   <h2 id="titre"></h2>
-  <div class="barre">
-    <button id="tProd" onclick="onglet('pProd')" data-t="produits"></button>
+  <div class="tabs">
+    <button id="tProd" class="on" onclick="onglet('pProd')" data-t="produits"></button>
     <button id="tDet" onclick="onglet('pDet')" data-t="dettes"></button>
     <button id="tVen" onclick="onglet('pVen')" data-t="ventes"></button>
   </div>
 
   <div id="pProd" class="box">
-    <input id="pNom" data-p="nomProd">
-    <input id="pQte" type="number" data-p="qte">
-    <label data-t="dateExp"></label>
-    <input id="pDate" type="date">
+    <label data-t="nomProd"></label><input id="pNom">
+    <label data-t="qte"></label><input id="pQte" type="number">
+    <label data-t="dateExp"></label><input id="pDate" type="date">
     <button onclick="ajoutProd()" data-t="ajouter"></button>
     <div id="alerteProd"></div>
     <div id="listeProd"></div>
   </div>
 
   <div id="pDet" class="box" style="display:none">
-    <input id="dNom" data-p="client">
-    <input id="dMont" type="number" data-p="montant">
+    <label data-t="client"></label><input id="dNom">
+    <label data-t="montant"></label><input id="dMont" type="number">
     <button onclick="ajoutDette()" data-t="ajouter"></button>
     <p><b id="totDet"></b></p>
     <div id="listeDet"></div>
   </div>
 
   <div id="pVen" class="box" style="display:none">
-    <input id="vNom" data-p="nomProd">
-    <input id="vMont" type="number" data-p="montant">
+    <label data-t="nomProd"></label><input id="vNom">
+    <label data-t="montant"></label><input id="vMont" type="number">
     <button onclick="ajoutVente()" data-t="ajouter"></button>
     <p><b id="totVen"></b></p>
     <div id="listeVen"></div>
@@ -112,32 +148,34 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">"
 let shopId = null;
 
 const T = {
-fr:{slogan:"Gérez mieux. Développez plus.",email:"Email",pass:"Mot de passe (6 caractères min.)",
- login:"Se connecter",signup:"Créer mon compte",bienvenue:"Bienvenue ! Donne un nom à ton magasin :",
- nomMag:"Nom du magasin",creerMag:"Créer mon magasin",logout:"Se déconnecter",
- nomReq:"Écris le nom.",guideTitre:"Comment ça marche",
- g1:"Crée ton compte avec ton email et un mot de passe.",
- g2:"Écris le nom de ton magasin.",
- g3:"Ajoute tes produits, les dettes de tes clients et tes ventes. Dukyo te montre les produits qui bientôt expirent.",
+fr:{slogan:"Gérez mieux. Développez plus.",lEmail:"Écris ici ton email",lPass:"Écris ton mot de passe (6 caractères minimum)",
+ login:"Se connecter",signup:"Créer mon compte",lNomMag:"Écris ici le nom de ton magasin",
+ creerMag:"Créer mon magasin",logout:"Se déconnecter",nomReq:"Écris le nom.",
+ bTitre:"Bienvenue sur Dukyo !",bTexte:"Ton magasin est prêt. Voici ce que Dukyo fait pour toi :",
+ b1:"Produits : écris tes produits avec la date d’expiration. Dukyo te prévient avant qu’ils se gâtent.",
+ b2:"Dettes : écris les clients qui prennent à crédit, et marque « Payé » quand ils remboursent.",
+ b3:"Ventes : écris tout ce que tu vends aujourd’hui et vois le total.",
+ b4:"Bientôt : bénéfices, évolution de ton magasin et notifications.",bBtn:"Commencer",
  produits:"Produits",dettes:"Dettes",ventes:"Ventes",nomProd:"Nom du produit",qte:"Quantité",
  dateExp:"Date d’expiration",ajouter:"Ajouter",client:"Nom du client",montant:"Montant (FC)",
  expire:"Expiré",jours:"j restants",suppr:"Supprimer",paye:"Payé",totDet:"Total des dettes impayées : ",
  totVen:"Total des ventes d’aujourd’hui : ",adminTitre:"Dukyo : tous les magasins",
  alerte:"⚠️ Produits qui expirent dans 30 jours ou moins : ",rien:"Rien pour l’instant.",
  prodN:"produits",detN:"dettes impayées"},
-sw:{slogan:"Simamia vizuri. Kua zaidi.",email:"Barua pepe",pass:"Nenosiri (herufi 6 au zaidi)",
- login:"Ingia",signup:"Fungua akaunti",bienvenue:"Karibu! Andika jina la duka lako:",
- nomMag:"Jina la duka",creerMag:"Fungua duka langu",logout:"Toka",
- nomReq:"Andika jina.",guideTitre:"Jinsi inavyofanya kazi",
- g1:"Fungua akaunti kwa barua pepe na nenosiri.",
- g2:"Andika jina la duka lako.",
- g3:"Ongeza bidhaa zako, madeni ya wateja na mauzo. Dukyo inakuonyesha bidhaa zinazokaribia kuisha muda.",
- produits:"Bidhaa",dettes:"Madeni",ventes:"Mauzo",nomProd:"Jina la bidhaa",qte:"Idadi",
- dateExp:"Tarehe ya kuisha muda",ajouter:"Ongeza",client:"Jina la mteja",montant:"Kiasi (FC)",
- expire:"Imeisha muda",jours:"siku zimebaki",suppr:"Futa",paye:"Amelipa",totDet:"Jumla ya madeni yasiyolipwa: ",
- totVen:"Jumla ya mauzo ya leo: ",adminTitre:"Dukyo: maduka yote",
- alerte:"⚠️ Bidhaa zinazokaribia kuisha muda (siku 30 au chini): ",rien:"Hakuna kitu bado.",
- prodN:"bidhaa",detN:"madeni yasiyolipwa"}
+sw:{slogan:"Simamia vizuri, kua zaidi.",lEmail:"Weka hapa mail yako",lPass:"Weka password yako (neno ya siri), angalau 6",
+ login:"Ingia",signup:"Fungua compte yako",lNomMag:"Andika hapa jina ya boutique yako",
+ creerMag:"Tengeneza boutique yangu",logout:"Toka",nomReq:"Andika jina.",
+ bTitre:"Karibu kwa Dukyo !",bTexte:"Boutique yako iko tayari. Hii ndiyo kazi ya Dukyo kwako :",
+ b1:"Bidhaa : andika bidhaa zako na date ya expiration. Dukyo inakuonya kabla ziharibike.",
+ b2:"Madeni : andika clients wanaokopa, na weka alama « Amelipa » wakilipa.",
+ b3:"Mauzo : andika kila kitu unachouza leo, uone total.",
+ b4:"Karibuni : bénéfices, maendeleo ya boutique yako na notifications.",bBtn:"Anza sasa",
+ produits:"Bidhaa",dettes:"Madeni",ventes:"Mauzo",nomProd:"Jina ya bidhaa",qte:"Idadi",
+ dateExp:"Date ya expiration",ajouter:"Ongeza",client:"Jina ya client",montant:"Montant (FC)",
+ expire:"Imeisha (expiré)",jours:"siku zimebaki",suppr:"Futa",paye:"Amelipa",totDet:"Total ya madeni haijalipwa : ",
+ totVen:"Total ya mauzo ya leo : ",adminTitre:"Dukyo : boutiques zote",
+ alerte:"⚠️ Bidhaa zinakaribia expiration (siku 30 au chini) : ",rien:"Hakuna kitu bado.",
+ prodN:"bidhaa",detN:"madeni haijalipwa"}
 };
 let L = localStorage.getItem("lang") || "fr";
 const t = k => T[L][k];
@@ -145,24 +183,25 @@ const t = k => T[L][k];
 function langue(l){
   L = l; localStorage.setItem("lang", l);
   document.documentElement.lang = l;
+  document.documentElement.dataset.l = l;
   document.querySelectorAll("[data-t]").forEach(e => e.textContent = T[l][e.dataset.t]);
-  document.querySelectorAll("[data-p]").forEach(e => e.placeholder = T[l][e.dataset.p]);
-  $("bFr").className = l === "fr" ? "on" : "";
-  $("bSw").className = l === "sw" ? "on" : "";
 }
+function basculer(){ langue(L === "fr" ? "sw" : "fr"); afficher(); }
 function theme(){
-  const cur = document.documentElement.dataset.theme ||
-    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  const nv = cur === "dark" ? "light" : "dark";
+  const nv = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   document.documentElement.dataset.theme = nv;
   localStorage.setItem("theme", nv);
 }
-const th = localStorage.getItem("theme");
-if (th) document.documentElement.dataset.theme = th;
+document.documentElement.dataset.theme = localStorage.getItem("theme") ||
+  (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
 function msg(m){ $("msg").textContent = m || ""; }
 function onglet(id){
-  ["pProd","pDet","pVen"].forEach(p => $(p).style.display = p === id ? "block" : "none");
+  const map = { pProd:"tProd", pDet:"tDet", pVen:"tVen" };
+  Object.keys(map).forEach(p => {
+    $(p).style.display = p === id ? "block" : "none";
+    $(map[p]).className = p === id ? "on" : "";
+  });
 }
 
 async function inscrire(){
@@ -185,8 +224,10 @@ async function creerMagasin(){
   if (!nom) return msg(t("nomReq"));
   const { error } = await db.from("shops").insert({ name: nom });
   if (error) return msg(error.message);
+  localStorage.setItem("welcome", "1");
   afficher();
 }
+function commencer(){ localStorage.removeItem("welcome"); afficher(); }
 
 /* ---------- Produits ---------- */
 async function ajoutProd(){
@@ -287,7 +328,7 @@ async function chargerAdmin(){
 }
 
 async function afficher(){
-  ["auth","creer","app","admin"].forEach(i => $(i).style.display = "none");
+  ["auth","creer","bienv","app","admin"].forEach(i => $(i).style.display = "none");
   const { data: { session } } = await db.auth.getSession();
   if (!session) { $("auth").style.display = "block"; return; }
   const { data: estAdmin } = await db.rpc("is_admin");
@@ -296,6 +337,7 @@ async function afficher(){
   if (error) { msg(error.message); $("auth").style.display = "block"; return; }
   if (data.length === 0) { $("creer").style.display = "block"; return; }
   shopId = data[0].id;
+  if (localStorage.getItem("welcome") === "1") { $("bienv").style.display = "block"; return; }
   $("titre").textContent = data[0].name;
   $("app").style.display = "block";
   chargerProd(); chargerDet(); chargerVen();
