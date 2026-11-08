@@ -3,166 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f5eff">
 <title>Dukyo</title>
 <style>
-:root{--bg:#e9f1f7;--bg2:#d8e7f1;--card:rgba(255,255,255,.82);--champ:#fff;--txt:#1b2430;--doux:#5b6878;--bord:#cfd8e3;--w1:rgba(30,99,214,.13);--w2:rgba(31,157,107,.13);--w3:rgba(14,116,144,.12)}
-:root[data-theme="dark"]{--bg:#0e1419;--bg2:#0a1015;--card:rgba(29,36,45,.82);--champ:#151b22;--txt:#e8edf3;--doux:#9aa7b7;--bord:#3a4553;--w1:rgba(46,120,230,.16);--w2:rgba(40,175,125,.14);--w3:rgba(30,150,180,.14)}
+:root{--bg:#f4f6fb;--bg2:#dce6fb;--card:rgba(255,255,255,.84);--field:rgba(240,244,252,.95);--text:#1b2433;--muted:#5d6b82;--accent:#1f5eff;--accent2:#3f7bff;--accent-text:#fff;--border:rgba(31,60,120,.18);--shadow:0 12px 40px rgba(31,60,120,.16);--error:#b3261e;--ok:#1b7a3d;--warn:#a15c00;--glow:31,94,255;--glow-alpha:.55}
+:root[data-theme="dark"]{--bg:#10151f;--bg2:#131c36;--card:rgba(20,28,48,.8);--field:rgba(9,14,27,.75);--text:#eef2fa;--muted:#9fb0c9;--accent:#6c93ff;--accent2:#9db6ff;--accent-text:#0d1424;--border:rgba(159,176,201,.22);--shadow:0 12px 40px rgba(0,0,0,.5);--error:#ff8a80;--ok:#7ddc9a;--warn:#ffc266;--glow:160,190,255;--glow-alpha:.85}
 *{box-sizing:border-box}
-body{font-family:system-ui,sans-serif;max-width:460px;margin:0 auto;padding:14px;background:linear-gradient(180deg,var(--bg),var(--bg2)) fixed;color:var(--txt);min-height:100vh;animation:apparait 2s ease both;transition:background .4s,color .4s}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 16px 40px;background:radial-gradient(ellipse at 20% 0%,var(--bg2) 0%,var(--bg) 60%);background-attachment:fixed;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;animation:apparait 2.2s ease both}
 @keyframes apparait{from{opacity:0}to{opacity:1}}
-
-/* Fond : vagues d'eau douces */
-.fond{position:fixed;inset:0;overflow:hidden;z-index:-1}
-.vg{position:absolute;left:0;bottom:0;width:100%;overflow:hidden;animation:houle 9s ease-in-out infinite alternate}
-.vg svg{display:block;width:200%;height:100%;animation:glisse 28s linear infinite}
-@keyframes glisse{to{transform:translateX(-50%)}}
-@keyframes houle{from{transform:translateY(0)}to{transform:translateY(16px)}}
-.v1{height:55vh}.v1 .p{fill:var(--w1)}
-.v2{height:44vh;animation-duration:12s;animation-delay:-4s}.v2 svg{animation-duration:38s;animation-direction:reverse}.v2 .p{fill:var(--w2)}
-.v3{height:33vh;animation-duration:10s;animation-delay:-7s}.v3 svg{animation-duration:23s}.v3 .p{fill:var(--w3)}
-
-/* Barre du haut */
-.haut{display:flex;justify-content:space-between;margin-bottom:6px}
-.sw{position:relative;display:flex;width:80px;height:34px;border-radius:20px;background:var(--card);border:1px solid var(--bord);cursor:pointer;backdrop-filter:blur(8px);user-select:none;overflow:hidden;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
-.sw:active{transform:scale(.92)}
-.sw span{flex:1;text-align:center;line-height:32px;font-size:13px;z-index:1}
-.sw .knob{position:absolute;top:3px;left:3px;width:36px;height:26px;border-radius:15px;background:rgba(30,99,214,.28);transition:transform .45s cubic-bezier(.4,1.4,.5,1)}
-.sw.b .knob{transform:translateX(37px)}
-
-/* Titre Dukyo : bleu et vert, reflet très doux */
-.logo{font-size:46px;font-weight:800;letter-spacing:1px;text-align:center;margin:4px 0;
- background-image:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.45) 50%,transparent 58%),linear-gradient(90deg,#1e63d6 0 58%,#1f9d6b 58% 100%);
- background-size:250% 100%,100% 100%;background-repeat:no-repeat;
- -webkit-background-clip:text;background-clip:text;color:transparent;
- animation:brille 7s ease-in-out infinite,descend 1s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.card{position:relative;z-index:1;width:100%;max-width:440px;margin-top:8px;padding:26px;border-radius:20px;background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);animation:fadeUp .6s ease both}
+body,.card,input,button{transition:background-color .3s ease,color .3s ease,border-color .3s ease,transform .45s cubic-bezier(.34,1.56,.64,1),box-shadow .3s ease,filter .3s ease}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.lang{display:flex;gap:6px}
+.lang button{width:auto;margin:0;background:none;border:1px solid var(--border);color:var(--muted);padding:6px 11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:38px}
+.lang button.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+#btn-theme{font-size:16px;line-height:1;background:var(--field);color:var(--text)}
+h1.logo{margin:0;font-size:30px;font-weight:800;letter-spacing:-.3px;
+ background-image:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.5) 50%,transparent 58%),linear-gradient(90deg,var(--accent) 0 58%,#1f9d6b 58% 100%);
+ background-size:250% 100%,100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;animation:brille 7s ease-in-out infinite}
 @keyframes brille{0%{background-position:160% 0,0 0}100%{background-position:-60% 0,0 0}}
-@keyframes descend{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
-.slogan{text-align:center;color:var(--doux);font-size:14px;margin:0 0 12px}
-
-/* Cartes, champs, boutons */
-.box{background:var(--card);backdrop-filter:blur(10px);padding:14px;border-radius:16px;margin-bottom:12px;box-shadow:0 6px 24px rgba(0,0,0,.08);animation:entree .7s ease both}
-@keyframes entree{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.lb{display:block;font-size:12px;color:var(--doux);margin:8px 0 2px}
-input{width:100%;padding:11px;font-size:16px;border-radius:10px;border:1px solid var(--bord);background:var(--champ);color:var(--txt);transition:border-color .3s,box-shadow .3s,transform .3s}
-input:focus{outline:0;border-color:#1e63d6;box-shadow:0 0 0 4px rgba(30,99,214,.16);transform:translateY(-2px)}
-button{position:relative;overflow:hidden;width:100%;padding:12px;margin:6px 0;font-size:16px;border-radius:10px;border:0;background:#1e63d6;color:#fff;transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .3s,box-shadow .3s}
-button:active{transform:scale(.93);filter:brightness(.9)}
-button.alt{background:#1f9d6b}
-button.gris{background:#6b7684}
-button.petit{width:auto;padding:6px 10px;margin:0 0 0 6px;font-size:13px}
+p.sub{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.5}
+label.lb{display:block;font-size:13px;font-weight:600;margin:14px 0 6px;color:var(--muted)}
+input{width:100%;padding:12px 13px;font-size:16px;border-radius:11px;border:1px solid var(--border);background:var(--field);color:var(--text)}
+input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--glow),.22);transform:translateY(-2px)}
+button{position:relative;overflow:hidden;cursor:pointer;font-family:inherit}
+button.main{width:100%;margin-top:16px;padding:13px;font-size:16px;font-weight:700;border:0;border-radius:11px;color:var(--accent-text);background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 6px 18px rgba(var(--glow),.3)}
+button.link{width:100%;margin-top:12px;padding:11px;font-size:15px;font-weight:600;background:none;border:1px solid var(--border);border-radius:11px;color:var(--text)}
+button.small{width:auto;padding:7px 11px;margin:0 0 0 6px;font-size:13px;font-weight:600;background:var(--field);border:1px solid var(--border);border-radius:9px;color:var(--text)}
+button:not(:disabled):active{transform:scale(.93)}
 .onde{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:onde .8s ease-out forwards;pointer-events:none}
 @keyframes onde{to{transform:scale(1);opacity:0}}
-#msg{color:#e03030;text-align:center;min-height:18px;font-size:14px}
-.tabs{display:flex;gap:6px;margin-bottom:10px}
-.tab{margin:0;background:var(--card);color:var(--txt);border:1px solid var(--bord);font-size:14px;padding:10px 4px}
-.tab.on{background:#1e63d6;color:#fff;border-color:#1e63d6}
+#msg{color:var(--error);font-size:14px;min-height:18px;margin-top:10px;word-break:break-word}
+.tabs{display:flex;gap:6px;margin:6px 0 14px}
+.tab{flex:1;padding:10px 4px;font-size:14px;font-weight:600;background:var(--field);border:1px solid var(--border);border-radius:10px;color:var(--text)}
+.tab.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
 .entete{display:flex;justify-content:space-between;align-items:center}
-.entete h2{margin:6px 0}
-.aide{width:34px;height:34px;padding:0;border-radius:50%;margin:0;font-size:16px}
-.ligne{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bord);animation:entree .5s ease both}
-.rouge{color:#e03030;font-weight:bold}.orange{color:#b7791f;font-weight:bold}.vert{color:#2a9d4a}
-.alerte{background:rgba(183,121,31,.14);border-radius:10px;padding:8px;margin:8px 0;font-size:14px}
-.etape{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--bord);animation:entree .7s ease both}
-.etape:nth-child(2){animation-delay:.15s}.etape:nth-child(3){animation-delay:.3s}.etape:nth-child(4){animation-delay:.45s}
+.entete h2{margin:6px 0;font-size:20px}
+.aide{width:34px;height:34px;padding:0;border-radius:50%;background:var(--field);border:1px solid var(--border);color:var(--text);font-size:16px}
+.ligne{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;margin-top:10px;background:var(--field);border-radius:14px;animation:fadeUp .4s ease both}
+.ligne small{color:var(--muted)}
+.rouge{color:var(--error)!important;font-weight:600}
+.orange{color:var(--warn)!important;font-weight:600}
+.vert{color:var(--ok)}
+.alerte{background:var(--field);border:1px solid var(--border);border-left:4px solid var(--warn);border-radius:12px;padding:10px;margin-top:12px;font-size:14px}
+.etape{display:flex;gap:12px;align-items:flex-start;padding:12px;margin-top:10px;background:var(--field);border-radius:14px;animation:fadeUp .6s ease both}
+.etape:nth-of-type(2){animation-delay:.12s}.etape:nth-of-type(3){animation-delay:.24s}.etape:nth-of-type(4){animation-delay:.36s}.etape:nth-of-type(5){animation-delay:.48s}
 .etape .ico{font-size:24px}
-.etape b{font-size:15px}.etape p{margin:2px 0 0;font-size:13px;color:var(--doux)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.etape b{font-size:15px}.etape p{margin:2px 0 0;font-size:13px;color:var(--muted);line-height:1.4}
+.hidden{display:none}
+h3{margin:18px 0 6px;font-size:16px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="fond">
-  <div class="vg v1"><svg viewBox="0 0 2400 200" preserveAspectRatio="none"><path class="p" d="M0 100 Q300 20 600 100 T1200 100 T1800 100 T2400 100 V200 H0Z"/></svg></div>
-  <div class="vg v2"><svg viewBox="0 0 2400 200" preserveAspectRatio="none"><path class="p" d="M0 100 Q300 20 600 100 T1200 100 T1800 100 T2400 100 V200 H0Z"/></svg></div>
-  <div class="vg v3"><svg viewBox="0 0 2400 200" preserveAspectRatio="none"><path class="p" d="M0 100 Q300 20 600 100 T1200 100 T1800 100 T2400 100 V200 H0Z"/></svg></div>
-  <div id="bulles" style="display:none"></div>
-</div>
-<script>
-document.addEventListener("pointerdown", function(e){
-  var b = e.target.closest("button,.sw");
-  if (!b) return;
-  var r = b.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2;
-  var d = document.createElement("span");
-  d.className = "onde";
-  d.style.cssText = "width:"+s+"px;height:"+s+"px;left:"+(e.clientX-r.left-s/2)+"px;top:"+(e.clientY-r.top-s/2)+"px";
-  b.appendChild(d);
-  setTimeout(function(){ d.remove(); }, 800);
-});
-</script>
-<div class="haut">
-  <div class="sw" id="swLang" onclick="basculeLang()"><span>FR</span><span>SW</span><i class="knob"></i></div>
-  <div class="sw" id="swTh" onclick="theme()"><span>☀️</span><span>🌙</span><i class="knob"></i></div>
-</div>
-<h1 class="logo">Dukyo</h1>
-<p class="slogan" data-t="slogan"></p>
-<div id="msg"></div>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="card">
+  <div class="top">
+    <h1 class="logo">Dukyo</h1>
+    <div class="lang">
+      <button id="btn-fr" type="button" onclick="langue('fr');afficher()">FR</button>
+      <button id="btn-sw" type="button" onclick="langue('sw');afficher()">SW</button>
+      <button id="btn-theme" type="button" onclick="basculeTheme()"></button>
+    </div>
+  </div>
+  <p class="sub" data-t="slogan"></p>
+  <div id="msg"></div>
 
-<div id="auth" class="box" style="display:none">
-  <label class="lb" for="email" data-t="lEmail"></label>
-  <input id="email" type="email" autocomplete="email">
-  <label class="lb" for="pass" data-t="lPass"></label>
-  <input id="pass" type="password" autocomplete="current-password">
-  <button onclick="connecter()" data-t="login"></button>
-  <button class="alt" onclick="inscrire()" data-t="signup"></button>
-</div>
+  <div id="auth" class="hidden">
+    <label class="lb" for="email" data-t="lEmail"></label>
+    <input id="email" type="email" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false">
+    <label class="lb" for="pass" data-t="lPass"></label>
+    <input id="pass" type="password" autocomplete="current-password">
+    <button class="main" type="button" onclick="connecter()" data-t="login"></button>
+    <button class="link" type="button" onclick="inscrire()" data-t="signup"></button>
+  </div>
 
-<div id="creer" class="box" style="display:none">
-  <label class="lb" for="nomMagasin" data-t="lNomMag"></label>
-  <input id="nomMagasin">
-  <button onclick="creerMagasin()" data-t="creerMag"></button>
-  <button class="gris" onclick="sortir()" data-t="logout"></button>
-</div>
+  <div id="creer" class="hidden">
+    <label class="lb" for="nomMagasin" data-t="lNomMag"></label>
+    <input id="nomMagasin">
+    <button class="main" type="button" onclick="creerMagasin()" data-t="creerMag"></button>
+    <button class="link" type="button" onclick="sortir()" data-t="logout"></button>
+  </div>
 
-<div id="bienvenue" style="display:none">
-  <div class="box">
+  <div id="bienvenue" class="hidden">
     <h2><span data-t="karibu"></span> <span id="wNom"></span> !</h2>
-    <p class="slogan" style="text-align:left" data-t="wIntro"></p>
+    <p class="sub" data-t="wIntro"></p>
     <div class="etape"><span class="ico">📦</span><div><b data-t="w1t"></b><p data-t="w1d"></p></div></div>
     <div class="etape"><span class="ico">📒</span><div><b data-t="w2t"></b><p data-t="w2d"></p></div></div>
     <div class="etape"><span class="ico">💰</span><div><b data-t="w3t"></b><p data-t="w3d"></p></div></div>
     <div class="etape"><span class="ico">📈</span><div><b data-t="w4t"></b><p data-t="w4d"></p></div></div>
-    <button onclick="allerApp()" data-t="commencer"></button>
-  </div>
-</div>
-
-<div id="app" style="display:none">
-  <div class="entete"><h2 id="titre"></h2><button class="aide" onclick="ouvrirBienvenue()">?</button></div>
-  <div class="tabs">
-    <button class="tab on" id="tProd" onclick="onglet('pProd')" data-t="produits"></button>
-    <button class="tab" id="tDet" onclick="onglet('pDet')" data-t="dettes"></button>
-    <button class="tab" id="tVen" onclick="onglet('pVen')" data-t="ventes"></button>
+    <button class="main" type="button" onclick="allerApp()" data-t="commencer"></button>
   </div>
 
-  <div id="pProd" class="box">
-    <label class="lb" for="pNom" data-t="lProd"></label><input id="pNom">
-    <label class="lb" for="pQte" data-t="lQte"></label><input id="pQte" type="number" inputmode="numeric">
-    <label class="lb" for="pDate" data-t="lDateExp"></label><input id="pDate" type="date">
-    <button onclick="ajoutProd()" data-t="ajouter"></button>
-    <div id="alerteProd"></div>
-    <div id="listeProd"></div>
+  <div id="app" class="hidden">
+    <div class="entete"><h2 id="titre"></h2><button class="aide" type="button" onclick="ouvrirBienvenue()">?</button></div>
+    <div class="tabs">
+      <button class="tab on" id="tProd" type="button" onclick="onglet('pProd')" data-t="produits"></button>
+      <button class="tab" id="tDet" type="button" onclick="onglet('pDet')" data-t="dettes"></button>
+      <button class="tab" id="tVen" type="button" onclick="onglet('pVen')" data-t="ventes"></button>
+    </div>
+
+    <div id="pProd">
+      <label class="lb" for="pNom" data-t="lProd"></label><input id="pNom">
+      <label class="lb" for="pQte" data-t="lQte"></label><input id="pQte" type="number" inputmode="numeric">
+      <label class="lb" for="pDate" data-t="lDateExp"></label><input id="pDate" type="date">
+      <button class="main" type="button" onclick="ajoutProd()" data-t="ajouter"></button>
+      <div id="alerteProd"></div>
+      <div id="listeProd"></div>
+    </div>
+
+    <div id="pDet" class="hidden">
+      <label class="lb" for="dNom" data-t="lClient"></label><input id="dNom">
+      <label class="lb" for="dMont" data-t="lMontant"></label><input id="dMont" type="number" inputmode="decimal">
+      <button class="main" type="button" onclick="ajoutDette()" data-t="ajouter"></button>
+      <h3 id="totDet"></h3>
+      <div id="listeDet"></div>
+    </div>
+
+    <div id="pVen" class="hidden">
+      <label class="lb" for="vNom" data-t="lProd"></label><input id="vNom">
+      <label class="lb" for="vMont" data-t="lMontant"></label><input id="vMont" type="number" inputmode="decimal">
+      <button class="main" type="button" onclick="ajoutVente()" data-t="ajouter"></button>
+      <h3 id="totVen"></h3>
+      <div id="listeVen"></div>
+    </div>
+    <button class="link" type="button" onclick="sortir()" data-t="logout"></button>
   </div>
 
-  <div id="pDet" class="box" style="display:none">
-    <label class="lb" for="dNom" data-t="lClient"></label><input id="dNom">
-    <label class="lb" for="dMont" data-t="lMontant"></label><input id="dMont" type="number" inputmode="decimal">
-    <button onclick="ajoutDette()" data-t="ajouter"></button>
-    <p><b id="totDet"></b></p>
-    <div id="listeDet"></div>
+  <div id="admin" class="hidden">
+    <h2 data-t="adminTitre"></h2>
+    <div id="listeAdmin"></div>
+    <button class="link" type="button" onclick="sortir()" data-t="logout"></button>
   </div>
-
-  <div id="pVen" class="box" style="display:none">
-    <label class="lb" for="vNom" data-t="lProd"></label><input id="vNom">
-    <label class="lb" for="vMont" data-t="lMontant"></label><input id="vMont" type="number" inputmode="decimal">
-    <button onclick="ajoutVente()" data-t="ajouter"></button>
-    <p><b id="totVen"></b></p>
-    <div id="listeVen"></div>
-  </div>
-  <button class="gris" onclick="sortir()" data-t="logout"></button>
-</div>
-
-<div id="admin" class="box" style="display:none">
-  <h2 data-t="adminTitre"></h2>
-  <div id="listeAdmin"></div>
-  <button class="gris" onclick="sortir()" data-t="logout"></button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -194,7 +170,7 @@ fr:{slogan:"Gère mieux ta boutique. Développe-la plus.",
  totDet:"Total des dettes pas encore payées : ",totVen:"Total des ventes d’aujourd’hui : ",
  adminTitre:"Dukyo : toutes les boutiques",
  alerte:"⚠️ Produits qui expirent dans 30 jours ou moins : ",rien:"Rien pour l’instant.",
- prodN:"produits",detN:"dettes pas payées"},
+ prodN:"produits",detN:"dettes pas payées",toLight:"Passer au thème clair",toDark:"Passer au thème sombre"},
 sw:{slogan:"Simamia boutique yako vizuri. Pata faida mingi.",
  lEmail:"Weka hapa mail yako",lPass:"Weka password yako (angalau 6 caractères)",
  login:"Ingia",signup:"Fungua compte yako",
@@ -213,270 +189,71 @@ sw:{slogan:"Simamia boutique yako vizuri. Pata faida mingi.",
  totDet:"Jumla ya dettes bado hazijalipwa : ",totVen:"Jumla ya ventes ya leo : ",
  adminTitre:"Dukyo : boutiques zote",
  alerte:"⚠️ Produits zinakaribia kuisha (siku 30 au chini) : ",rien:"Hakuna bado.",
- prodN:"produits",detN:"dettes hazijalipwa"}
+ prodN:"produits",detN:"dettes hazijalipwa",toLight:"Tumia thème clair",toDark:"Tumia thème sombre"}
 };
 let L = localStorage.getItem("lang") || "fr";
 const t = k => T[L][k];
+
+/* ---------- Thème clair / sombre (comme SchoolLink) ---------- */
+function themeActuel(){
+  const s = localStorage.getItem("theme");
+  if (s === "light" || s === "dark") return s;
+  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function appliquerTheme(){
+  const eff = themeActuel();
+  document.documentElement.setAttribute("data-theme", eff);
+  document.documentElement.style.colorScheme = eff;
+  const b = $("btn-theme");
+  b.textContent = eff === "dark" ? "\u2600" : "\u263E";
+  const lab = eff === "dark" ? t("toLight") : t("toDark");
+  b.setAttribute("aria-label", lab); b.title = lab;
+  if (typeof readGlow === "function") { readGlow(); if (reduceMotion) drawLights(); }
+}
+function basculeTheme(){
+  localStorage.setItem("theme", themeActuel() === "dark" ? "light" : "dark");
+  appliquerTheme();
+}
 
 function langue(l){
   L = l; localStorage.setItem("lang", l);
   document.documentElement.lang = l === "sw" ? "sw" : "fr";
   document.querySelectorAll("[data-t]").forEach(e => e.textContent = T[l][e.dataset.t]);
-  $("swLang").classList.toggle("b", l === "sw");
+  $("btn-fr").className = l === "fr" ? "on" : "";
+  $("btn-sw").className = l === "sw" ? "on" : "";
+  appliquerTheme();
 }
-function basculeLang(){ langue(L === "fr" ? "sw" : "fr"); afficher(); }
 
-function appliquerTheme(nv){
-  document.documentElement.dataset.theme = nv;
-  $("swTh").classList.toggle("b", nv === "dark");
+/* ---------- Fond : petites lumières en mouvement (même effet que SchoolLink) ---------- */
+var bg = $("bg"), ctx = bg.getContext("2d"), lights = [], vw = 0, vh = 0;
+var glowRGB = "31, 94, 255", glowAlpha = 0.6;
+var reduceMotion = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+function readGlow(){
+  var cs = getComputedStyle(document.documentElement);
+  glowRGB = cs.getPropertyValue("--glow").trim() || glowRGB;
+  glowAlpha = parseFloat(cs.getPropertyValue("--glow-alpha")) || glowAlpha;
 }
-function theme(){
-  const cur = document.documentElement.dataset.theme;
-  const nv = cur === "dark" ? "light" : "dark";
-  localStorage.setItem("theme", nv);
-  appliquerTheme(nv);
+function buildLights(){
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  vw = innerWidth; vh = innerHeight;
+  bg.width = Math.round(vw * dpr); bg.height = Math.round(vh * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var count = Math.round(Math.min(80, Math.max(26, (vw * vh) / 15000)));
+  lights = [];
+  for (var i = 0; i < count; i++) lights.push({
+    x: Math.random() * vw, y: Math.random() * vh, r: 0.8 + Math.random() * 1.9,
+    vx: (Math.random() - 0.5) * 0.3, vy: -0.05 - Math.random() * 0.28,
+    p: Math.random() * Math.PI * 2, s: 0.008 + Math.random() * 0.02 });
 }
-appliquerTheme(localStorage.getItem("theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
-
-(function bulles(){
-  const f = $("bulles");
-  for (let i = 0; i < 10; i++) {
-    const b = document.createElement("i");
-    const s = 10 + Math.random() * 30;
-    b.style.cssText = "width:" + s + "px;height:" + s + "px;left:" + (Math.random() * 100) + "%;animation-duration:" + (14 + Math.random() * 14) + "s;animation-delay:-" + (Math.random() * 20) + "s";
-    f.appendChild(b);
+function drawLights(){
+  ctx.clearRect(0, 0, vw, vh);
+  for (var i = 0; i < lights.length; i++) {
+    var l = lights[i], a = glowAlpha * (0.45 + 0.55 * Math.sin(l.p));
+    if (a < 0.02) continue;
+    ctx.fillStyle = "rgba(" + glowRGB + "," + (a * 0.16).toFixed(3) + ")";
+    ctx.beginPath(); ctx.arc(l.x, l.y, l.r * 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "rgba(" + glowRGB + "," + a.toFixed(3) + ")";
+    ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI * 2); ctx.fill();
   }
-})();
-
-function msg(m){ $("msg").textContent = m || ""; }
-function onglet(id){
-  ["pProd","pDet","pVen"].forEach(p => $(p).style.display = p === id ? "block" : "none");
-  const map = { pProd:"tProd", pDet:"tDet", pVen:"tVen" };
-  Object.keys(map).forEach(p => $(map[p]).classList.toggle("on", p === id));
 }
-
-async function inscrire(){
-  msg("");
-  const { error } = await db.auth.signUp({ email: $("email").value, password: $("pass").value });
-  if (error) return msg(error.message);
-  afficher();
-}
-async function connecter(){
-  msg("");
-  const { error } = await db.auth.signInWithPassword({ email: $("email").value, password: $("pass").value });
-  if (error) return msg(error.message);
-  afficher();
-}
-async function sortir(){ await db.auth.signOut(); afficher(); }
-
-async function creerMagasin(){
-  msg("");
-  const nom = $("nomMagasin").value.trim();
-  if (!nom) return msg(t("nomReq"));
-  const { error } = await db.from("shops").insert({ name: nom });
-  if (error) return msg(error.message);
-  afficher();
-}
-
-/* ---------- Produits ---------- */
-async function ajoutProd(){
-  msg("");
-  const name = $("pNom").value.trim();
-  if (!name) return msg(t("nomReq"));
-  const { error } = await db.from("products").insert({
-    shop_id: shopId, name, quantity: parseInt($("pQte").value) || 0, expiry_date: $("pDate").value || null });
-  if (error) return msg(error.message);
-  $("pNom").value = $("pQte").value = $("pDate").value = "";
-  chargerProd();
-}
-async function chargerProd(){
-  const { data } = await db.from("products").select("*").eq("shop_id", shopId)
-    .order("expiry_date", { ascending: true, nullsFirst: false });
-  const auj = new Date(); auj.setHours(0,0,0,0);
-  let proches = 0, html = "";
-  (data || []).forEach(p => {
-    let etat = "", cls = "";
-    if (p.expiry_date) {
-      const j = Math.round((new Date(p.expiry_date + "T00:00:00") - auj) / 864e5);
-      if (j < 0) { etat = t("expire"); cls = "rouge"; proches++; }
-      else { etat = j + " " + t("jours"); if (j <= 30) { cls = "orange"; proches++; } }
-    }
-    html += '<div class="ligne"><span>' + esc(p.name) + ' (' + p.quantity + ')<br><small class="' + cls + '">'
-      + esc(p.expiry_date || "") + ' ' + etat + '</small></span>'
-      + '<button class="petit gris" onclick="suppr(\'products\',\'' + p.id + '\')">' + t("suppr") + '</button></div>';
-  });
-  $("alerteProd").innerHTML = proches ? '<div class="alerte">' + t("alerte") + proches + '</div>' : "";
-  $("listeProd").innerHTML = html || t("rien");
-}
-
-/* ---------- Dettes ---------- */
-async function ajoutDette(){
-  msg("");
-  const c = $("dNom").value.trim();
-  if (!c) return msg(t("nomReq"));
-  const { error } = await db.from("debts").insert({ shop_id: shopId, customer_name: c, amount: parseFloat($("dMont").value) || 0 });
-  if (error) return msg(error.message);
-  $("dNom").value = $("dMont").value = "";
-  chargerDet();
-}
-async function payer(id){ await db.from("debts").update({ paid: true }).eq("id", id); chargerDet(); }
-async function chargerDet(){
-  const { data } = await db.from("debts").select("*").eq("shop_id", shopId).order("created_at", { ascending: false });
-  let total = 0, html = "";
-  (data || []).forEach(d => {
-    if (!d.paid) total += Number(d.amount);
-    html += '<div class="ligne"><span class="' + (d.paid ? "vert" : "") + '">' + esc(d.customer_name) + ' : ' + d.amount + ' FC</span><span>'
-      + (d.paid ? "✔" : '<button class="petit" onclick="payer(\'' + d.id + '\')">' + t("paye") + '</button>')
-      + '<button class="petit gris" onclick="suppr(\'debts\',\'' + d.id + '\')">' + t("suppr") + '</button></span></div>';
-  });
-  $("totDet").textContent = t("totDet") + total + " FC";
-  $("listeDet").innerHTML = html || t("rien");
-}
-
-/* ---------- Ventes ---------- */
-async function ajoutVente(){
-  msg("");
-  const n = $("vNom").value.trim();
-  if (!n) return msg(t("nomReq"));
-  const { error } = await db.from("sales").insert({ shop_id: shopId, product_name: n, amount: parseFloat($("vMont").value) || 0 });
-  if (error) return msg(error.message);
-  $("vNom").value = $("vMont").value = "";
-  chargerVen();
-}
-async function chargerVen(){
-  const debut = new Date(); debut.setHours(0,0,0,0);
-  const { data } = await db.from("sales").select("*").eq("shop_id", shopId)
-    .gte("created_at", debut.toISOString()).order("created_at", { ascending: false });
-  let total = 0, html = "";
-  (data || []).forEach(v => {
-    total += Number(v.amount);
-    html += '<div class="ligne"><span>' + esc(v.product_name) + ' : ' + v.amount + ' FC</span>'
-      + '<button class="petit gris" onclick="suppr(\'sales\',\'' + v.id + '\')">' + t("suppr") + '</button></div>';
-  });
-  $("totVen").textContent = t("totVen") + total + " FC";
-  $("listeVen").innerHTML = html || t("rien");
-}
-
-async function suppr(table, id){
-  await db.from(table).delete().eq("id", id);
-  chargerProd(); chargerDet(); chargerVen();
-}
-
-/* ---------- Propriétaire Dukyo ---------- */
-async function chargerAdmin(){
-  const { data: shops } = await db.from("shops").select("id,name").order("created_at");
-  const { data: prods } = await db.from("products").select("shop_id");
-  const { data: dets } = await db.from("debts").select("shop_id").eq("paid", false);
-  let html = "";
-  (shops || []).forEach(s => {
-    const np = (prods || []).filter(x => x.shop_id === s.id).length;
-    const nd = (dets || []).filter(x => x.shop_id === s.id).length;
-    html += '<div class="ligne"><span>' + esc(s.name) + '</span><small>' + np + ' ' + t("prodN") + ', ' + nd + ' ' + t("detN") + '</small></div>';
-  });
-  $("listeAdmin").innerHTML = html || t("rien");
-}
-
-/* ---------- Bienvenue ---------- */
-function allerApp(){ localStorage.setItem("vu_" + shopId, "1"); afficher(); }
-function ouvrirBienvenue(){
-  $("app").style.display = "none";
-  $("bienvenue").style.display = "block";
-}
-
-async function afficher(){
-  ["auth","creer","bienvenue","app","admin"].forEach(i => $(i).style.display = "none");
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) { $("auth").style.display = "block"; return; }
-  const { data: estAdmin } = await db.rpc("is_admin");
-  if (estAdmin === true) { $("admin").style.display = "block"; chargerAdmin(); return; }
-  const { data, error } = await db.from("shops").select("id,name").eq("owner_id", session.user.id).limit(1);
-  if (error) { msg(error.message); $("auth").style.display = "block"; return; }
-  if (data.length === 0) { $("creer").style.display = "block"; return; }
-  shopId = data[0].id; shopNom = data[0].name;
-  $("titre").textContent = shopNom;
-  $("wNom").textContent = shopNom;
-  if (!localStorage.getItem("vu_" + shopId)) { $("bienvenue").style.display = "block"; return; }
-  $("app").style.display = "block";
-  chargerProd(); chargerDet(); chargerVen();
-}
-langue(L);
-afficher();
-</script>
-</body>
-</html>
-<style>
-.vg{display:none!important}
-#eau{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;animation:apparait 2.5s ease both}
-.box{animation:entree .7s ease both,flotte 8s ease-in-out .9s infinite;box-shadow:0 10px 28px rgba(8,40,70,.18)}
-.box:nth-of-type(2n){animation-duration:.7s,10s}
-@keyframes flotte{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(.12deg)}}
-</style>
-<canvas id="eau"></canvas>
-<script>
-(function(){
-  var c = document.getElementById("eau");
-  var gl = c.getContext("webgl");
-  if (!gl) { c.style.display = "none"; return; }
-  var vs = "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
-  var fs = [
-    "#ifdef GL_FRAGMENT_PRECISION_HIGH","precision highp float;","#else","precision mediump float;","#endif",
-    "uniform vec2 r;uniform float t;uniform float d;",
-    "void main(){",
-    " vec2 uv=gl_FragCoord.xy/r.y;",
-    " float tm=t*0.22+23.0;",
-    " vec2 p=mod(uv*6.28318*2.2,6.28318)-20.0;",
-    " vec2 i=p;float c=1.0;float inten=0.006;",
-    " for(int n=0;n<4;n++){",
-    "  float tt=tm*(1.0-(3.5/float(n+1)));",
-    "  i=p+vec2(cos(tt-i.x)+sin(tt+i.y),sin(tt-i.y)+cos(tt+i.x));",
-    "  c+=1.0/length(vec2(p.x/(sin(i.x+tt)/inten),p.y/(cos(i.y+tt)/inten)));",
-    " }",
-    " c/=4.0;c=1.17-pow(c,1.4);",
-    " float k=clamp(pow(abs(c),6.0),0.0,1.0);",
-    " vec3 deep=mix(vec3(0.55,0.78,0.92),vec3(0.03,0.12,0.20),d);",
-    " vec3 mid=mix(vec3(0.38,0.66,0.86),vec3(0.05,0.22,0.34),d);",
-    " float g=0.5+0.5*sin(uv.y*3.0+uv.x*1.5+t*0.15);",
-    " vec3 base=mix(deep,mid,g);",
-    " vec3 lum=mix(vec3(0.90,0.97,1.0),vec3(0.35,0.70,0.85),d);",
-    " gl_FragColor=vec4(mix(base,lum,k*0.45),1.0);",
-    "}"
-  ].join("\n");
-  function sh(type, src){
-    var s = gl.createShader(type);
-    gl.shaderSource(s, src); gl.compileShader(s);
-    return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
-  }
-  var v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs);
-  if (!v || !f) { c.style.display = "none"; return; }
-  var pr = gl.createProgram();
-  gl.attachShader(pr, v); gl.attachShader(pr, f); gl.linkProgram(pr);
-  if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { c.style.display = "none"; return; }
-  gl.useProgram(pr);
-  var buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
-  var loc = gl.getAttribLocation(pr, "a");
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  var U = { r: gl.getUniformLocation(pr, "r"), t: gl.getUniformLocation(pr, "t"), d: gl.getUniformLocation(pr, "d") };
-  function taille(){
-    c.width = Math.max(2, Math.floor(innerWidth * 0.4));
-    c.height = Math.max(2, Math.floor(innerHeight * 0.4));
-    gl.viewport(0, 0, c.width, c.height);
-  }
-  taille(); addEventListener("resize", taille);
-  var reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var dernier = 0, t0 = performance.now();
-  function dessine(now){
-    if (!document.hidden && now - dernier > 33) {
-      dernier = now;
-      gl.uniform2f(U.r, c.width, c.height);
-      gl.uniform1f(U.t, (now - t0) / 1000);
-      gl.uniform1f(U.d, document.documentElement.dataset.theme === "dark" ? 1 : 0);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    }
-    if (!reduit) requestAnimationFrame(dessine);
-  }
-  requestAnimationFrame(dessine);
-})();
-</script>
+function animer
