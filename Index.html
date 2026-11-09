@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f5eff">
+<title>Dukyo</title>
+<style>
+:root{--bg:#f4f6fb;--bg2:#dce6fb;--card:rgba(255,255,255,.84);--field:rgba(240,244,252,.95);--text:#1b2433;--muted:#5d6b82;--accent:#1f5eff;--accent2:#3f7bff;--accent-text:#fff;--border:rgba(31,60,120,.18);--shadow:0 12px 40px rgba(31,60,120,.16);--error:#b3261e;--ok:#1b7a3d;--warn:#a15c00;--glow:31,94,255;--glow-alpha:.55}
+:root[data-theme="dark"]{--bg:#10151f;--bg2:#131c36;--card:rgba(20,28,48,.8);--field:rgba(9,14,27,.75);--text:#eef2fa;--muted:#9fb0c9;--accent:#6c93ff;--accent2:#9db6ff;--accent-text:#0d1424;--border:rgba(159,176,201,.22);--shadow:0 12px 40px rgba(0,0,0,.5);--error:#ff8a80;--ok:#7ddc9a;--warn:#ffc266;--glow:160,190,255;--glow-alpha:.85}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 16px 40px;background:radial-gradient(ellipse at 20% 0%,var(--bg2) 0%,var(--bg) 60%);background-attachment:fixed;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;animation:apparait 2.2s ease both}
+@keyframes apparait{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.card{position:relative;z-index:1;width:100%;max-width:440px;margin-top:8px;padding:26px;border-radius:20px;background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);animation:fadeUp .6s ease both}
+body,.card,input,button{transition:background-color .3s ease,color .3s ease,border-color .3s ease,transform .45s cubic-bezier(.34,1.56,.64,1),box-shadow .3s ease,filter .3s ease}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.lang{display:flex;gap:6px}
+.lang button{width:auto;margin:0;background:none;border:1px solid var(--border);color:var(--muted);padding:6px 11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;min-width:38px}
+.lang button.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+#btn-theme{font-size:16px;line-height:1;background:var(--field);color:var(--text)}
+h1.logo{margin:0;font-size:30px;font-weight:800;letter-spacing:-.3px;
+ background-image:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.5) 50%,transparent 58%),linear-gradient(90deg,var(--accent) 0 58%,#1f9d6b 58% 100%);
+ background-size:250% 100%,100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;animation:brille 7s ease-in-out infinite}
+@keyframes brille{0%{background-position:160% 0,0 0}100%{background-position:-60% 0,0 0}}
+p.sub{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.5}
+label.lb{display:block;font-size:13px;font-weight:600;margin:14px 0 6px;color:var(--muted)}
+input{width:100%;padding:12px 13px;font-size:16px;border-radius:11px;border:1px solid var(--border);background:var(--field);color:var(--text)}
+input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--glow),.22);transform:translateY(-2px)}
+button{position:relative;overflow:hidden;cursor:pointer;font-family:inherit}
+button.main{width:100%;margin-top:16px;padding:13px;font-size:16px;font-weight:700;border:0;border-radius:11px;color:var(--accent-text);background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 6px 18px rgba(var(--glow),.3)}
+button.link{width:100%;margin-top:12px;padding:11px;font-size:15px;font-weight:600;background:none;border:1px solid var(--border);border-radius:11px;color:var(--text)}
+button.small{width:auto;padding:7px 11px;margin:0 0 0 6px;font-size:13px;font-weight:600;background:var(--field);border:1px solid var(--border);border-radius:9px;color:var(--text)}
+button:not(:disabled):active{transform:scale(.93)}
+.onde{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:onde .8s ease-out forwards;pointer-events:none}
+@keyframes onde{to{transform:scale(1);opacity:0}}
+#msg{color:var(--error);font-size:14px;min-height:18px;margin-top:10px;word-break:break-word}
+.tabs{display:flex;gap:6px;margin:6px 0 14px}
+.tab{flex:1;padding:10px 4px;font-size:14px;font-weight:600;background:var(--field);border:1px solid var(--border);border-radius:10px;color:var(--text)}
+.tab.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.entete{display:flex;justify-content:space-between;align-items:center}
+.entete h2{margin:6px 0;font-size:20px}
+.aide{width:34px;height:34px;padding:0;border-radius:50%;background:var(--field);border:1px solid var(--border);color:var(--text);font-size:16px}
+.ligne{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;margin-top:10px;background:var(--field);border-radius:14px;animation:fadeUp .4s ease both}
+.ligne small{color:var(--muted)}
+.rouge{color:var(--error)!important;font-weight:600}
+.orange{color:var(--warn)!important;font-weight:600}
+.vert{color:var(--ok)}
+.alerte{background:var(--field);border:1px solid var(--border);border-left:4px solid var(--warn);border-radius:12px;padding:10px;margin-top:12px;font-size:14px}
+.etape{display:flex;gap:12px;align-items:flex-start;padding:12px;margin-top:10px;background:var(--field);border-radius:14px;animation:fadeUp .6s ease both}
+.etape:nth-of-type(2){animation-delay:.12s}.etape:nth-of-type(3){animation-delay:.24s}.etape:nth-of-type(4){animation-delay:.36s}.etape:nth-of-type(5){animation-delay:.48s}
+.etape .ico{font-size:24px}
+.etape b{font-size:15px}.etape p{margin:2px 0 0;font-size:13px;color:var(--muted);line-height:1.4}
+.hidden{display:none}
+h3{margin:18px 0 6px;font-size:16px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="card">
+  <div class="top">
+    <h1 class="logo">Dukyo</h1>
+    <div class="lang">
+      <button id="btn-fr" type="button" onclick="langue('fr');afficher()">FR</button>
+      <button id="btn-sw" type="button" onclick="langue('sw');afficher()">SW</button>
+      <button id="btn-theme" type="button" onclick="basculeTheme()"></button>
+    </div>
+  </div>
+  <p class="sub" data-t="slogan"></p>
+  <div id="msg"></div>
+
+  <div id="auth" class="hidden">
+    <label class="lb" for="email" data-t="lEmail"></label>
+    <input id="email" type="email" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false">
+    <label class="lb" for="pass" data-t="lPass"></label>
+    <input id="pass" type="password" autocomplete="current-password">
+    <button class="main" type="button" onclick="connecter()" data-t="login"></button>
+    <button class="link" type="button" onclick="inscrire()" data-t="signup"></button>
+  </div>
+
+  <div id="creer" class="hidden">
+    <label class="lb" for="nomMagasin" data-t="lNomMag"></label>
+    <input id="nomMagasin">
+    <button class="main" type="button" onclick="creerMagasin()" data-t="creerMag"></button>
+    <button class="link" type="button" onclick="sortir()" data-t="logout"></button>
+  </div>
+
+  <div id="bienvenue" class="hidden">
+    <h2><span data-t="karibu"></span> <span id="wNom"></span> !</h2>
+    <p class="sub" data-t="wIntro"></p>
+    <div class="etape"><span class="ico">📦</span><div><b data-t="w1t"></b><p data-t="w1d"></p></div></div>
+    <div class="etape"><span class="ico">📒</span><div><b data-t="w2t"></b><p data-t="w2d"></p></div></div>
+    <div class="etape"><span class="ico">💰</span><div><b data-t="w3t"></b><p data-t="w3d"></p></div></div>
+    <div class="etape"><span class="ico">📈</span><div><b data-t="w4t"></b><p data-t="w4d"></p></div></div>
+    <button class="main" type="button" onclick="allerApp()" data-t="commencer"></button>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="entete"><h2 id="titre"></h2><button class="aide" type="button" onclick="ouvrirBienvenue()">?</button></div>
+    <div class="tabs">
+      <button class="tab on" id="tProd" type="button" onclick="onglet('pProd')" data-t="produits"></button>
+      <button class="tab" id="tDet" type="button" onclick="onglet('pDet')" data-t="dettes"></button>
+      <button class="tab" id="tVen" type="button" onclick="onglet('pVen')" data-t="ventes"></button>
+    </div>
+
+    <div id="pProd">
+      <label class="lb" for="pNom" data-t="lProd"></label><input id="pNom">
+      <label class="lb" for="pQte" data-t="lQte"></label><input id="pQte" type="number" inputmode="numeric">
+      <label class="lb" for="pDate" data-t="lDateExp"></label><input id="pDate" type="date">
+      <button class="main" type="button" onclick="ajoutProd()" data-t="ajouter"></button>
+      <div id="alerteProd"></div>
+      <div id="listeProd"></div>
+    </div>
+
+    <div id="pDet" class="hidden">
+      <label class="lb" for="dNom" data-t="lClient"></label><input id="dNom">
+      <label class="lb" for="dMont" data-t="lMontant"></label><input id="dMont" type="number" inputmode="decimal">
+      <button class="main" type="button" onclick="ajoutDette()" data-t="ajouter"></button>
+      <h3 id="totDet"></h3>
+      <div id="listeDet"></div>
+    </div>
+
+    <div id="pVen" class="hidden">
+      <label class="lb" for="vNom" data-t="lProd"></label><input id="vNom">
+      <label class="lb" for="vMont" data-t="lMontant"></label><input id="vMont" type="number" inputmode="decimal">
+      <button class="main" type="button" onclick="ajoutVente()" data-t="ajouter"></button>
+      <h3 id="totVen"></h3>
+      <div id="listeVen"></div>
+    </div>
+    <button class="link" type="button" onclick="sortir()" data-t="logout"></button>
+  </div>
+
+  <div id="admin" class="hidden">
+    <h2 data-t="adminTitre"></h2>
+    <div id="listeAdmin"></div>
+    <button class="link" type="button" onclick="sortir()" data-t="logout"></button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const db = supabase.createClient(
+  "https://jvocjjrjfioqwxfzplnb.supabase.co",
+  "sb_publishable_imOLQTOIvhydb7Z4PjmjSw_CijN4k7W"
+);
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let shopId = null, shopNom = "";
+
+const T = {
+fr:{slogan:"Gère mieux ta boutique. Développe-la plus.",
+ lEmail:"Écris ici ton email",lPass:"Écris ton mot de passe (6 caractères minimum)",
+ login:"Se connecter",signup:"Créer mon compte",
+ lNomMag:"Écris le nom de ta boutique",creerMag:"Créer ma boutique",logout:"Se déconnecter",
+ nomReq:"Écris le nom.",
+ karibu:"Bienvenue",wIntro:"Voici ce que tu peux faire avec Dukyo :",
+ w1t:"Produits",w1d:"Écris chaque produit avec sa date d’expiration. Dukyo te montre ceux qui bientôt expirent, pour ne rien perdre.",
+ w2t:"Dettes",w2d:"Note les clients qui prennent à crédit et le montant. Touche « Payé » quand ils paient.",
+ w3t:"Ventes",w3d:"Note chaque vente du jour. Tu vois le total d’aujourd’hui.",
+ w4t:"Bénéfices et évolution",w4d:"Voir combien tu gagnes et comment ta boutique avance : bientôt disponible.",
+ commencer:"Commencer",
+ produits:"Produits",dettes:"Dettes",ventes:"Ventes",
+ lProd:"Nom du produit",lQte:"Quantité",lDateExp:"Date d’expiration",ajouter:"Ajouter",
+ lClient:"Nom du client",lMontant:"Montant (FC)",
+ expire:"Expiré",jours:"jours restants",suppr:"Supprimer",paye:"Payé",
+ totDet:"Total des dettes pas encore payées : ",totVen:"Total des ventes d’aujourd’hui : ",
+ adminTitre:"Dukyo : toutes les boutiques",
+ alerte:"⚠️ Produits qui expirent dans 30 jours ou moins : ",rien:"Rien pour l’instant.",
+ prodN:"produits",detN:"dettes pas payées",toLight:"Passer au thème clair",toDark:"Passer au thème sombre"},
+sw:{slogan:"Simamia boutique yako vizuri. Pata faida mingi.",
+ lEmail:"Weka hapa mail yako",lPass:"Weka password yako (angalau 6 caractères)",
+ login:"Ingia",signup:"Fungua compte yako",
+ lNomMag:"Andika jina ya boutique yako",creerMag:"Fungua boutique yangu",logout:"Toka",
+ nomReq:"Andika jina.",
+ karibu:"Karibu",wIntro:"Hii ndiyo unaweza kufanya na Dukyo :",
+ w1t:"Produits",w1d:"Andika kila produit na date ya expiration. Dukyo inakuonyesha zile zinakaribia kuisha, usipoteze marchandise.",
+ w2t:"Dettes",w2d:"Andika wateja wanaokopa na kiasi chao. Bonyeza « Amelipa » akishalipa.",
+ w3t:"Ventes",w3d:"Andika kila vente ya siku. Utaona jumla ya leo.",
+ w4t:"Faida na maendeleo",w4d:"Kuona unapata kiasi gani na boutique yako inaendeleaje : inakuja bientôt.",
+ commencer:"Anza",
+ produits:"Produits",dettes:"Dettes",ventes:"Ventes",
+ lProd:"Jina ya produit",lQte:"Idadi",lDateExp:"Date ya expiration",ajouter:"Ongeza",
+ lClient:"Jina ya client",lMontant:"Kiasi (FC)",
+ expire:"Imeisha",jours:"siku zimebaki",suppr:"Futa",paye:"Amelipa",
+ totDet:"Jumla ya dettes bado hazijalipwa : ",totVen:"Jumla ya ventes ya leo : ",
+ adminTitre:"Dukyo : boutiques zote",
+ alerte:"⚠️ Produits zinakaribia kuisha (siku 30 au chini) : ",rien:"Hakuna bado.",
+ prodN:"produits",detN:"dettes hazijalipwa",toLight:"Tumia thème clair",toDark:"Tumia thème sombre"}
+};
+let L = localStorage.getItem("lang") || "fr";
+const t = k => T[L][k];
+
+/* ---------- Thème clair / sombre (comme SchoolLink) ---------- */
+function themeActuel(){
+  const s = localStorage.getItem("theme");
+  if (s === "light" || s === "dark") return s;
+  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function appliquerTheme(){
+  const eff = themeActuel();
+  document.documentElement.setAttribute("data-theme", eff);
+  document.documentElement.style.colorScheme = eff;
+  const b = $("btn-theme");
+  b.textContent = eff === "dark" ? "\u2600" : "\u263E";
+  const lab = eff === "dark" ? t("toLight") : t("toDark");
+  b.setAttribute("aria-label", lab); b.title = lab;
+  if (typeof readGlow === "function") { readGlow(); if (reduceMotion) drawLights(); }
+}
+function basculeTheme(){
+  localStorage.setItem("theme", themeActuel() === "dark" ? "light" : "dark");
+  appliquerTheme();
+}
+
+function langue(l){
+  L = l; localStorage.setItem("lang", l);
+  document.documentElement.lang = l === "sw" ? "sw" : "fr";
+  document.querySelectorAll("[data-t]").forEach(e => e.textContent = T[l][e.dataset.t]);
+  $("btn-fr").className = l === "fr" ? "on" : "";
+  $("btn-sw").className = l === "sw" ? "on" : "";
+  appliquerTheme();
+}
+
+/* ---------- Fond : petites lumières en mouvement (même effet que SchoolLink) ---------- */
+var bg = $("bg"), ctx = bg.getContext("2d"), lights = [], vw = 0, vh = 0;
+var glowRGB = "31, 94, 255", glowAlpha = 0.6;
+var reduceMotion = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+function readGlow(){
+  var cs = getComputedStyle(document.documentElement);
+  glowRGB = cs.getPropertyValue("--glow").trim() || glowRGB;
+  glowAlpha = parseFloat(cs.getPropertyValue("--glow-alpha")) || glowAlpha;
+}
+function buildLights(){
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  vw = innerWidth; vh = innerHeight;
+  bg.width = Math.round(vw * dpr); bg.height = Math.round(vh * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var count = Math.round(Math.min(80, Math.max(26, (vw * vh) / 15000)));
+  lights = [];
+  for (var i = 0; i < count; i++) lights.push({
+    x: Math.random() * vw, y: Math.random() * vh, r: 0.8 + Math.random() * 1.9,
+    vx: (Math.random() - 0.5) * 0.3, vy: -0.05 - Math.random() * 0.28,
+    p: Math.random() * Math.PI * 2, s: 0.008 + Math.random() * 0.02 });
+}
+function drawLights(){
+  ctx.clearRect(0, 0, vw, vh);
+  for (var i = 0; i < lights.length; i++) {
+    var l = lights[i], a = glowAlpha * (0.45 + 0.55 * Math.sin(l.p));
+    if (a < 0.02) continue;
+    ctx.fillStyle = "rgba(" + glowRGB + "," + (a * 0.16).toFixed(3) + ")";
+    ctx.beginPath(); ctx.arc(l.x, l.y, l.r * 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "rgba(" + glowRGB + "," + a.toFixed(3) + ")";
+    ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI * 2); ctx.fill();
+  }
+}
+function animerLights(){
+  for (var i = 0; i < lights.length; i++) {
+    var l = lights[i];
+    l.x += l.vx; l.y += l.vy; l.p += l.s;
+    if (l.y < -10) { l.y = vh + 10; l.x = Math.random() * vw; }
+    if (l.x < -10) l.x = vw + 10;
+    if (l.x > vw + 10) l.x = -10;
+  }
+  drawLights();
+  requestAnimationFrame(animerLights);
+}
+function initFond(){
+  readGlow(); buildLights();
+  var rt = null;
+  addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(function(){ buildLights(); if (reduceMotion) drawLights(); }, 150); });
+  if (reduceMotion) drawLights(); else animerLights();
+}
+
+/* ---------- Onde douce au toucher ---------- */
+document.addEventListener("pointerdown", function(e){
+  var b = e.target.closest("button");
+  if (!b) return;
+  var r = b.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2;
+  var d = document.createElement("span");
+  d.className = "onde";
+  d.style.cssText = "width:"+s+"px;height:"+s+"px;left:"+(e.clientX-r.left-s/2)+"px;top:"+(e.clientY-r.top-s/2)+"px";
+  b.appendChild(d);
+  setTimeout(function(){ d.remove(); }, 800);
+});
+
+function msg(m){ $("msg").textContent = m || ""; }
+function onglet(id){
+  ["pProd","pDet","pVen"].forEach(p => $(p).classList.toggle("hidden", p !== id));
+  const map = { pProd:"tProd", pDet:"tDet", pVen:"tVen" };
+  Object.keys(map).forEach(p => $(map[p]).classList.toggle("on", p === id));
+}
+
+async function inscrire(){
+  msg("");
+  const { error } = await db.auth.signUp({ email: $("email").value, password: $("pass").value });
+  if (error) return msg(error.message);
+  afficher();
+}
+async function connecter(){
+  msg("");
+  const { error } = await db.auth.signInWithPassword({ email: $("email").value, password: $("pass").value });
+  if (error) return msg(error.message);
+  afficher();
+}
+async function sortir(){ await db.auth.signOut(); afficher(); }
+
+async function creerMagasin(){
+  msg("");
+  const nom = $("nomMagasin").value.trim();
+  if (!nom) return msg(t("nomReq"));
+  const { error } = await db.from("shops").insert({ name: nom });
+  if (error) return msg(error.message);
+  afficher();
+}
+
+/* ---------- Produits ---------- */
+async function ajoutProd(){
+  msg("");
+  const name = $("pNom").value.trim();
+  if (!name) return msg(t("nomReq"));
+  const { error } = await db.from("products").insert({
+    shop_id: shopId, name, quantity: parseInt($("pQte").value) || 0, expiry_date: $("pDate").value || null });
+  if (error) return msg(error.message);
+  $("pNom").value = $("pQte").value = $("pDate").value = "";
+  chargerProd();
+}
+async function chargerProd(){
+  const { data } = await db.from("products").select("*").eq("shop_id", shopId)
+    .order("expiry_date", { ascending: true, nullsFirst: false });
+  const auj = new Date(); auj.setHours(0,0,0,0);
+  let proches = 0, html = "";
+  (data || []).forEach(p => {
+    let etat = "", cls = "";
+    if (p.expiry_date) {
+      const j = Math.round((new Date(p.expiry_date + "T00:00:00") - auj) / 864e5);
+      if (j < 0) { etat = t("expire"); cls = "rouge"; proches++; }
+      else { etat = j + " " + t("jours"); if (j <= 30) { cls = "orange"; proches++; } }
+    }
+    html += '<div class="ligne"><span>' + esc(p.name) + ' (' + p.quantity + ')<br><small class="' + cls + '">'
+      + esc(p.expiry_date || "") + ' ' + etat + '</small></span>'
+      + '<button class="small" type="button" onclick="suppr(\'products\',\'' + p.id + '\')">' + t("suppr") + '</button></div>';
+  });
+  $("alerteProd").innerHTML = proches ? '<div class="alerte">' + t("alerte") + proches + '</div>' : "";
+  $("listeProd").innerHTML = html || '<p class="sub">' + t("rien") + '</p>';
+}
+
+/* ---------- Dettes ---------- */
+async function ajoutDette(){
+  msg("");
+  const c = $("dNom").value.trim();
+  if (!c) return msg(t("nomReq"));
+  const { error } = await db.from("debts").insert({ shop_id: shopId, customer_name: c, amount: parseFloat($("dMont").value) || 0 });
+  if (error) return msg(error.message);
+  $("dNom").value = $("dMont").value = "";
+  chargerDet();
+}
+async function payer(id){ await db.from("debts").update({ paid: true }).eq("id", id); chargerDet(); }
+async function chargerDet(){
+  const { data } = await db.from("debts").select("*").eq("shop_id", shopId).order("created_at", { ascending: false });
+  let total = 0, html = "";
+  (data || []).forEach(d => {
+    if (!d.paid) total += Number(d.amount);
+    html += '<div class="ligne"><span class="' + (d.paid ? "vert" : "") + '">' + esc(d.customer_name) + ' : ' + d.amount + ' FC</span><span>'
+      + (d.paid ? "✔" : '<button class="small" type="button" onclick="payer(\'' + d.id + '\')">' + t("paye") + '</button>')
+      + '<button class="small" type="button" onclick="suppr(\'debts\',\'' + d.id + '\')">' + t("suppr") + '</button></span></div>';
+  });
+  $("totDet").textContent = t("totDet") + total + " FC";
+  $("listeDet").innerHTML = html || '<p class="sub">' + t("rien") + '</p>';
+}
+
+/* ---------- Ventes ---------- */
+async function ajoutVente(){
+  msg("");
+  const n = $("vNom").value.trim();
+  if (!n) return msg(t("nomReq"));
+  const { error } = await db.from("sales").insert({ shop_id: shopId, product_name: n, amount: parseFloat($("vMont").value) || 0 });
+  if (error) return msg(error.message);
+  $("vNom").value = $("vMont").value = "";
+  chargerVen();
+}
+async function chargerVen(){
+  const debut = new Date(); debut.setHours(0,0,0,0);
+  const { data } = await db.from("sales").select("*").eq("shop_id", shopId)
+    .gte("created_at", debut.toISOString()).order("created_at", { ascending: false });
+  let total = 0, html = "";
+  (data || []).forEach(v => {
+    total += Number(v.amount);
+    html += '<div class="ligne"><span>' + esc(v.product_name) + ' : ' + v.amount + ' FC</span>'
+      + '<button class="small" type="button" onclick="suppr(\'sales\',\'' + v.id + '\')">' + t("suppr") + '</button></div>';
+  });
+  $("totVen").textContent = t("totVen") + total + " FC";
+  $("listeVen").innerHTML = html || '<p class="sub">' + t("rien") + '</p>';
+}
+
+async function suppr(table, id){
+  await db.from(table).delete().eq("id", id);
+  chargerProd(); chargerDet(); chargerVen();
+}
+
+/* ---------- Propriétaire Dukyo ---------- */
+async function chargerAdmin(){
+  const { data: shops } = await db.from("shops").select("id,name").order("created_at");
+  const { data: prods } = await db.from("products").select("shop_id");
+  const { data: dets } = await db.from("debts").select("shop_id").eq("paid", false);
+  let html = "";
+  (shops || []).forEach(s => {
+    const np = (prods || []).filter(x => x.shop_id === s.id).length;
+    const nd = (dets || []).filter(x => x.shop_id === s.id).length;
+    html += '<div class="ligne"><span>' + esc(s.name) + '</span><small>' + np + ' ' + t("prodN") + ', ' + nd + ' ' + t("detN") + '</small></div>';
+  });
+  $("listeAdmin").innerHTML = html || '<p class="sub">' + t("rien") + '</p>';
+}
+
+/* ---------- Bienvenue ---------- */
+function allerApp(){ localStorage.setItem("vu_" + shopId, "1"); afficher(); }
+function ouvrirBienvenue(){
+  $("app").classList.add("hidden");
+  $("bienvenue").classList.remove("hidden");
+}
+
+async function afficher(){
+  ["auth","creer","bienvenue","app","admin"].forEach(i => $(i).classList.add("hidden"));
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { $("auth").classList.remove("hidden"); return; }
+  const { data: estAdmin } = await db.rpc("is_admin");
+  if (estAdmin === true) { $("admin").classList.remove("hidden"); chargerAdmin(); return; }
+  const { data, error } = await db.from("shops").select("id,name").eq("owner_id", session.user.id).limit(1);
+  if (error) { msg(error.message); $("auth").classList.remove("hidden"); return; }
+  if (data.length === 0) { $("creer").classList.remove("hidden"); return; }
+  shopId = data[0].id; shopNom = data[0].name;
+  $("titre").textContent = shopNom;
+  $("wNom").textContent = shopNom;
+  if (!localStorage.getItem("vu_" + shopId)) { $("bienvenue").classList.remove("hidden"); return; }
+  $("app").classList.remove("hidden");
+  chargerProd(); chargerDet(); chargerVen();
+}
+
+langue(L);
+initFond();
+afficher();
+</script>
+</body>
+</html>
+  <style>
+:root{--card:rgba(255,255,255,.72);--glow:20,130,150}
+:root[data-theme="dark"]{--card:rgba(20,28,48,.7);--glow:130,225,200}
+.card{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+button.main{background:linear-gradient(135deg,var(--accent),#1f9d6b)!important;box-shadow:0 6px 18px rgba(31,157,107,.28)!important}
+.deco{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;color:var(--accent)}
+.deco svg{position:absolute;opacity:.3}
+.deco .d{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.deco .f{fill:currentColor;stroke:none;opacity:.35}
+.deco .v{color:#1f9d6b}
+.deco text{fill:currentColor;font-weight:700;font-family:system-ui,sans-serif}
+.dp{left:-4px;bottom:14px;width:150px;animation:flo 8s ease-in-out infinite}
+.dp .tete{transform-origin:60px 60px;animation:balance 5s ease-in-out infinite}
+.ds{right:-12px;bottom:26px;width:175px;animation:flo 9s ease-in-out -2s infinite}
+.dc{left:40%;bottom:10px;width:80px;animation:flo 7s ease-in-out -4s infinite}
+.db{left:-16px;top:44%;width:105px;animation:flo 10s ease-in-out -1s infinite}
+.dg{right:-14px;top:52%;width:80px;animation:flo 8.5s ease-in-out -5s infinite}
+.qm{animation:qm 3.2s ease-in-out infinite}
+.qm2{animation-delay:-1.1s}.qm3{animation-delay:-2.2s}
+@keyframes flo{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes balance{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes qm{0%,100%{opacity:.2;transform:translateY(3px)}50%{opacity:1;transform:translateY(-3px)}}
+</style>
+
+<div class="deco" aria-hidden="true">
+  <svg class="dp" viewBox="0 0 130 170">
+    <g class="tete">
+      <circle class="d" cx="60" cy="38" r="16"/>
+      <path class="d" d="M51 36h6M63 36h6"/>
+      <path class="d" d="M54 47q6-4 12 0"/>
+      <path class="d" d="M82 24q3 5 0 8q-3-3 0-8z"/>
+      <path class="d" d="M46 66Q26 64 38 40"/>
+      <path class="d" d="M74 66Q94 64 82 40"/>
+      <circle class="d" cx="41" cy="35" r="5"/>
+      <circle class="d" cx="79" cy="35" r="5"/>
+    </g>
+    <path class="d f" d="M45 62Q60 56 75 62L80 112H40Z"/>
+    <path class="d" d="M48 112v40M72 112v40M44 154h10M68 154h10"/>
+    <text class="qm" x="96" y="22" font-size="24">?</text>
+    <text class="qm qm2" x="14" y="26" font-size="18">?</text>
+    <text class="qm qm3" x="100" y="62" font-size="16">?</text>
+  </svg>
+  <svg class="ds" viewBox="0 0 120 100">
+    <path class="d f" d="M10 40L20 10H100L110 40Z"/>
+    <path class="d" d="M34 10L30 40M50 10L48 40M70 10L72 40M86 10L90 40"/>
+    <rect class="d" x="15" y="40" width="90" height="50"/>
+    <rect class="d" x="50" y="58" width="20" height="32"/>
+    <rect class="d" x="22" y="52" width="22" height="18"/>
+    <rect class="d" x="76" y="52" width="22" height="18"/>
+  </svg>
+  <svg class="dc v" viewBox="0 0 90 70">
+    <circle class="d" cx="30" cy="42" r="22"/><circle class="d" cx="30" cy="42" r="15"/>
+    <text x="21" y="47" font-size="13">FC</text>
+    <circle class="d" cx="62" cy="26" r="20"/><circle class="d" cx="62" cy="26" r="13"/>
+    <text x="54" y="31" font-size="12">FC</text>
+  </svg>
+  <svg class="db" viewBox="0 0 100 80">
+    <rect class="d f" x="5" y="42" width="40" height="33"/><rect class="d f" x="50" y="42" width="40" height="33"/>
+    <rect class="d f" x="25" y="8" width="40" height="34"/>
+    <path class="d" d="M25 8v14M65 8v14M5 54h40M50 54h40"/>
+  </svg>
+  <svg class="dg v" viewBox="0 0 80 90">
+    <path class="d f" d="M14 28H66L72 86H8Z"/>
+    <path class="d" d="M28 28C28 4 52 4 52 28"/>
+  </svg>
+</div>
+
+<script>
+Object.assign(T.fr,{iTitre:"Crée ton compte Dukyo",iSub:"Remplis ces champs une seule fois. Ensuite tu utiliseras « Se connecter ».",iPass:"Choisis ton mot de passe (6 caractères minimum)",iPass2:"Écris encore le mot de passe",iBtn:"Créer mon compte",iRetour:"J’ai déjà un compte",pasPareil:"Les deux mots de passe ne sont pas pareils.",court:"Mot de passe trop court (6 minimum)."});
+Object.assign(T.sw,{iTitre:"Fungua compte yako ya Dukyo",iSub:"Jaza hapa mara moja tu. Baadaye utatumia « Ingia ».",iPass:"Chagua password yako (angalau 6 caractères)",iPass2:"Rudia password yako",iBtn:"Fungua compte",iRetour:"Nina compte tayari",pasPareil:"Ma password mbili hazifanani.",court:"Password ni fupi sana (6 minimum)."});
+
+$("auth").insertAdjacentHTML("afterend",
+ '<div id="insc" class="hidden">'
+ +'<h2 data-t="iTitre"></h2><p class="sub" data-t="iSub"></p>'
+ +'<label class="lb" for="iEmail" data-t="lEmail"></label>'
+ +'<input id="iEmail" type="email" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false">'
+ +'<label class="lb" for="iPass" data-t="iPass"></label><input id="iPass" type="password" autocomplete="new-password">'
+ +'<label class="lb" for="iPass2" data-t="iPass2"></label><input id="iPass2" type="password" autocomplete="new-password">'
+ +'<button class="main" type="button" onclick="inscrire2()" data-t="iBtn"></button>'
+ +'<button class="link" type="button" onclick="retourLogin()" data-t="iRetour"></button>'
+ +'</div>');
+document.querySelector("#auth button.link").setAttribute("onclick","montrerInsc()");
+
+function montrerInsc(){ msg(""); $("auth").classList.add("hidden"); $("insc").classList.remove("hidden"); }
+function retourLogin(){ msg(""); $("insc").classList.add("hidden"); $("auth").classList.remove("hidden"); }
+async function inscrire2(){
+  msg("");
+  var e=$("iEmail").value.trim(), p=$("iPass").value;
+  if(p.length<6) return msg(t("court"));
+  if(p!==$("iPass2").value) return msg(t("pasPareil"));
+  var r=await db.auth.signUp({email:e,password:p});
+  if(r.error) return msg(r.error.message);
+  afficher();
+}
+
+async function afficher(){
+  ["auth","insc","creer","bienvenue","app","admin"].forEach(function(i){ $(i).classList.add("hidden"); });
+  var s=(await db.auth.getSession()).data.session;
+  if(!s){ $("auth").classList.remove("hidden"); return; }
+  var a=await db.rpc("is_admin");
+  if(a.data===true){ $("admin").classList.remove("hidden"); chargerAdmin(); return; }
+  var r=await db.from("shops").select("id,name").eq("owner_id",s.user.id).limit(1);
+  if(r.error){ msg(r.error.message); $("auth").classList.remove("hidden"); return; }
+  if(r.data.length===0){ $("creer").classList.remove("hidden"); return; }
+  shopId=r.data[0].id; shopNom=r.data[0].name;
+  $("titre").textContent=shopNom; $("wNom").textContent=shopNom;
+  if(!localStorage.getItem("vu_"+shopId)){ $("bienvenue").classList.remove("hidden"); return; }
+  $("app").classList.remove("hidden");
+  chargerProd(); chargerDet(); chargerVen();
+}
+langue(L);
+readGlow();
+afficher();
+</script>
