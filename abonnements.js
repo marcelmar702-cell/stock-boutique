@@ -405,3 +405,29 @@ afficher();
   l.href = "data:image/svg+xml," + encodeURIComponent(fav);
   document.head.appendChild(l);
 })();
+(function () {
+  var st = document.createElement("style");
+  st.textContent = [
+    "body{padding:0!important;display:block!important}",
+    ".card{max-width:520px!important;margin:0 auto!important;min-height:100vh;border-radius:0!important;border-top:0;padding:16px 18px 28px}",
+    "body.hasbar{padding-bottom:0!important}",
+    "body.hasbar .card{padding-bottom:104px}",
+    ".logoimg{height:52px;width:auto;display:block;mix-blend-mode:multiply}",
+    ":root[data-theme=\"dark\"] .logoimg{background:#fff;border-radius:12px;padding:4px;mix-blend-mode:normal}"
+  ].join("\n");
+  document.head.appendChild(st);
+  var h = document.querySelector("h1.logo");
+  if (h) {
+    var im = new Image();
+    im.alt = "Dukyo"; im.className = "logoimg";
+    im.onload = function () {
+      h.replaceWith(im);
+      var sl = document.querySelector('.card > p.sub[data-t="slogan"]');
+      if (sl) { sl.style.display = "none"; }
+    };
+    im.src = "logo.png";
+  }
+  ["icon", "apple-touch-icon"].forEach(function (r) {
+    var l = document.createElement("link"); l.rel = r; l.href = "icon.png"; document.head.appendChild(l);
+  });
+})();
