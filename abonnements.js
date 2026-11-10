@@ -431,3 +431,29 @@ afficher();
     var l = document.createElement("link"); l.rel = r; l.href = "icon.png"; document.head.appendChild(l);
   });
 })();
+(function () {
+  var st = document.createElement("style");
+  st.textContent = ".logosvg{display:block;line-height:0}.lgn{fill:#0d2a6b}:root[data-theme=\"dark\"] .lgn{fill:#eef2fa}";
+  document.head.appendChild(st);
+  var defs = '<defs><linearGradient id="gB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a2a8a"/><stop offset=".6" stop-color="#1e63d6"/><stop offset="1" stop-color="#29b6ff"/></linearGradient><linearGradient id="gO" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff7a1a"/><stop offset="1" stop-color="#ffb52e"/></linearGradient></defs>';
+  var dd = '<path fill-rule="evenodd" fill="url(#gB)" d="M6 8H52C88 8 108 30 108 54S88 98 52 98H6ZM28 30H50C64 30 76 40 76 54S64 78 50 78H28Z"/>';
+  var sw = '<path fill="url(#gO)" d="M2 70C42 46 92 56 130 42C102 76 40 88 2 70Z"/>';
+  var bars = '<rect x="36" y="58" width="8" height="14" rx="2" fill="url(#gO)"/><rect x="48" y="50" width="8" height="22" rx="2" fill="url(#gO)"/><rect x="60" y="42" width="8" height="30" rx="2" fill="url(#gO)"/>';
+  var ff = 'font-family="system-ui,Segoe UI,Roboto,sans-serif"';
+  var svg = '<svg viewBox="0 0 330 104" height="60" role="img" aria-label="Dukyo">' + defs + dd + sw + bars +
+    '<text x="124" y="72" font-size="58" font-weight="800" ' + ff + ' class="lgn">Duk<tspan fill="#f08a1e">y</tspan>o</text>' +
+    '<text x="126" y="95" font-size="12" font-style="italic" font-weight="600" ' + ff + ' class="lgn">Gérez mieux. Développez plus.</text></svg>';
+  var box = document.createElement("div");
+  box.className = "logosvg";
+  box.innerHTML = svg;
+  var old = document.querySelector(".logoimg, h1.logo");
+  if (old) { old.replaceWith(box); }
+  var sl = document.querySelector('.card > p.sub[data-t="slogan"]');
+  if (sl) { sl.style.display = "none"; }
+  document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(function (l) { l.remove(); });
+  var fav = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 114 106"><path fill-rule="evenodd" fill="#1e63d6" d="M6 8H52C88 8 108 30 108 54S88 98 52 98H6ZM28 30H50C64 30 76 40 76 54S64 78 50 78H28Z"/><path fill="#ff8a1e" d="M2 70C42 46 92 56 130 42C102 76 40 88 2 70Z"/></svg>';
+  var l = document.createElement("link");
+  l.rel = "icon";
+  l.href = "data:image/svg+xml," + encodeURIComponent(fav);
+  document.head.appendChild(l);
+})();
