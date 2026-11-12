@@ -11,56 +11,59 @@ st.textContent = [
 "body.hasbar .card,body.hasbar2 .card{padding-bottom:104px!important}",
 "#own button[data-a=\"out\"],#app>button.link{display:none!important}",
 ".top{margin-bottom:8px}",
-".brand{position:relative;overflow:hidden;width:min(300px,80%);margin:6px auto 12px;background:#fff;border-radius:18px;padding:8px 10px;box-shadow:0 6px 20px rgba(31,60,120,.16);line-height:0}",
-".brand svg,.brand img{width:100%;height:auto;display:block}",
-".brand::after{content:\"\";position:absolute;inset:0;background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.95) 50%,transparent 60%);background-size:250% 100%;background-position:160% 0;mix-blend-mode:soft-light;animation:brille2 6s ease-in-out infinite;pointer-events:none}",
-"@keyframes brille2{0%{background-position:160% 0}100%{background-position:-60% 0}}",
+".minilogo{flex:none;line-height:0}",
+".minilogo svg{height:44px;width:auto;display:block}",
+".biglogo{width:min(320px,88%);margin:2px auto 12px;line-height:0}",
+".biglogo svg{width:100%;height:auto;display:block}",
+".dkt{fill:#0b2a6f}.dks{stroke:#0b2a6f;fill:none}.dkw{stroke:var(--bg)}.dkwf{fill:var(--bg)}",
+":root[data-theme=\"dark\"] .dkt{fill:#eef2fa}:root[data-theme=\"dark\"] .dks{stroke:#eef2fa}",
+":root[data-theme=\"dark\"] .minilogo svg,:root[data-theme=\"dark\"] .biglogo svg{filter:drop-shadow(0 0 3px rgba(150,190,255,.4))}",
 "#btn-profile{display:none;align-items:center;justify-content:center;width:38px;height:38px;padding:0;margin:0;border-radius:50%;background:var(--field);border:1px solid var(--border);color:var(--text)}",
 "#btn-profile svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}",
 ".pmenu{position:fixed;top:60px;right:max(10px,calc(50% - 230px));z-index:60;min-width:210px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.28);overflow:hidden;animation:fadeUp .25s ease both}",
 ".pmenu.hidden{display:none}",
 ".pmenu .mail{padding:10px 14px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);word-break:break-all}",
 ".pmenu button{display:block;width:100%;text-align:left;background:none;border:0;border-radius:0;padding:13px 14px;margin:0;font-size:15px;font-weight:600;color:var(--text);box-shadow:none}",
-".pmenu button.on{background:rgba(31,94,255,.14)}",
 ".pmenu button.out{color:var(--error);border-top:1px solid var(--border)}"
 ].join("\n");
 document.head.appendChild(st);
 
-/* Logo : dessiné en code, avec le panier */
-var LOGO = "<svg viewBox='60 25 1410 880' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='Dukyo'>" +
-"<defs>" +
-"<linearGradient id='dkA' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#06185c'/><stop offset='.5' stop-color='#0a46c8'/><stop offset='.85' stop-color='#1a8cff'/><stop offset='1' stop-color='#3ee6ff'/></linearGradient>" +
-"<linearGradient id='dkB' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#07206e'/><stop offset='.6' stop-color='#0b52e0'/><stop offset='1' stop-color='#2a9bff'/></linearGradient>" +
-"<linearGradient id='dkO' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#ffb000'/><stop offset='.5' stop-color='#ff7a00'/><stop offset='1' stop-color='#ff4d00'/></linearGradient>" +
-"<linearGradient id='dkY' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#ffc400'/><stop offset='1' stop-color='#ff5a00'/></linearGradient>" +
-"</defs>" +
-"<path fill='url(#dkA)' d='M275 45H720C1010 45 1240 200 1255 385L1050 330C1030 260 920 215 740 215L520 220C400 222 300 260 220 320Z'/>" +
-"<path fill='url(#dkB)' d='M150 635L440 618L412 735C700 650 950 650 1145 685C1010 820 780 885 500 885H95Z'/>" +
-"<path fill='url(#dkO)' d='M225 392C100 440 55 520 85 570C150 640 400 600 700 568C900 560 1000 570 1070 578C700 580 330 650 120 600C20 560 60 450 225 392Z'/>" +
-"<path fill='url(#dkO)' d='M1015 662C1180 662 1300 685 1380 715C1280 690 1150 672 1015 665Z'/>" +
-"<path d='M190 362H246L272 468' fill='none' stroke='#0b2a6f' stroke-width='16' stroke-linecap='round' stroke-linejoin='round'/>" +
-"<path fill='#0b2a6f' d='M258 415H472L430 520H270Z'/>" +
-"<path d='M280 458H448M275 488H438' stroke='#fff' stroke-width='9' fill='none'/>" +
-"<circle cx='295' cy='548' r='25' fill='#0b2a6f'/><circle cx='295' cy='548' r='9' fill='#fff'/>" +
-"<circle cx='388' cy='548' r='25' fill='#0b2a6f'/><circle cx='388' cy='548' r='9' fill='#fff'/>" +
-"<path fill='url(#dkO)' d='M285 410L293 355H337L329 410Z'/>" +
-"<path fill='url(#dkO)' d='M340 410L350 315H394L384 410Z'/>" +
-"<path fill='url(#dkO)' d='M398 410L420 278H468L444 410Z'/>" +
-"<text x='480' y='552' font-size='300' font-weight='900' font-style='italic' textLength='960' lengthAdjust='spacingAndGlyphs' fill='#0b2a6f' font-family='Arial Black,Arial,system-ui,sans-serif'>Duk<tspan fill='url(#dkY)'>y</tspan>o</text>" +
-"<text x='515' y='640' font-size='64' font-weight='700' font-style='italic' textLength='880' lengthAdjust='spacingAndGlyphs' fill='#0b2a6f' font-family='system-ui,Arial,sans-serif'>Gérez mieux. Développez plus.</text>" +
-"</svg>";
+/* Logo dessiné en code, sans fond. full = avec le slogan. */
+function logo(sfx, full) {
+  var vb = full ? "60 25 1410 880" : "60 25 1410 700";
+  var text = "x='480' y='552' font-size='300' font-weight='900' font-style='italic' textLength='960' lengthAdjust='spacingAndGlyphs' font-family='Arial Black,Arial,system-ui,sans-serif'";
+  return "<svg viewBox='" + vb + "' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='Dukyo'>" +
+  "<defs>" +
+  "<linearGradient id='dkA" + sfx + "' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#06185c'/><stop offset='.5' stop-color='#0a46c8'/><stop offset='.85' stop-color='#1a8cff'/><stop offset='1' stop-color='#3ee6ff'/></linearGradient>" +
+  "<linearGradient id='dkB" + sfx + "' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#07206e'/><stop offset='.6' stop-color='#0b52e0'/><stop offset='1' stop-color='#2a9bff'/></linearGradient>" +
+  "<linearGradient id='dkO" + sfx + "' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#ffb000'/><stop offset='.5' stop-color='#ff7a00'/><stop offset='1' stop-color='#ff4d00'/></linearGradient>" +
+  "<linearGradient id='dkY" + sfx + "' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#ffc400'/><stop offset='1' stop-color='#ff5a00'/></linearGradient>" +
+  "<linearGradient id='dkS" + sfx + "' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#fff' stop-opacity='0'/><stop offset='.5' stop-color='#fff' stop-opacity='.75'/><stop offset='1' stop-color='#fff' stop-opacity='0'/>" +
+  "<animateTransform attributeName='gradientTransform' type='translate' values='-1.2 0;1.2 0' dur='5s' repeatCount='indefinite'/></linearGradient>" +
+  "</defs>" +
+  "<path fill='url(#dkA" + sfx + ")' d='M275 45H720C1010 45 1240 200 1255 385L1050 330C1030 260 920 215 740 215L520 220C400 222 300 260 220 320Z'/>" +
+  "<path fill='url(#dkB" + sfx + ")' d='M150 635L440 618L412 735C700 650 950 650 1145 685C1010 820 780 885 500 885H95Z'/>" +
+  "<path fill='url(#dkO" + sfx + ")' d='M225 392C100 440 55 520 85 570C150 640 400 600 700 568C900 560 1000 570 1070 578C700 580 330 650 120 600C20 560 60 450 225 392Z'/>" +
+  "<path fill='url(#dkO" + sfx + ")' d='M1015 662C1180 662 1300 685 1380 715C1280 690 1150 672 1015 665Z'/>" +
+  "<path class='dks' d='M190 362H246L272 468' stroke-width='16' stroke-linecap='round' stroke-linejoin='round'/>" +
+  "<path class='dkt' d='M258 415H472L430 520H270Z'/>" +
+  "<path class='dkw' d='M280 458H448M275 488H438' stroke-width='9' fill='none'/>" +
+  "<circle class='dkt' cx='295' cy='548' r='25'/><circle class='dkwf' cx='295' cy='548' r='9'/>" +
+  "<circle class='dkt' cx='388' cy='548' r='25'/><circle class='dkwf' cx='388' cy='548' r='9'/>" +
+  "<path fill='url(#dkO" + sfx + ")' d='M285 410L293 355H337L329 410Z'/>" +
+  "<path fill='url(#dkO" + sfx + ")' d='M340 410L350 315H394L384 410Z'/>" +
+  "<path fill='url(#dkO" + sfx + ")' d='M398 410L420 278H468L444 410Z'/>" +
+  "<text " + text + " class='dkt'>Duk<tspan fill='url(#dkY" + sfx + ")'>y</tspan>o</text>" +
+  "<text " + text + " fill='url(#dkS" + sfx + ")'>Dukyo</text>" +
+  (full ? "<text x='515' y='640' font-size='64' font-weight='700' font-style='italic' textLength='880' lengthAdjust='spacingAndGlyphs' class='dkt' font-family='system-ui,Arial,sans-serif'>Gérez mieux. Développez plus.</text>" : "") +
+  "</svg>";
+}
 
-document.querySelectorAll(".logosvg,.logoimg,h1.logo").forEach(function (e) { e.remove(); });
+document.querySelectorAll(".logosvg,.logoimg,.brand,h1.logo").forEach(function (e) { e.remove(); });
 var top = document.querySelector(".top");
-var brand = document.createElement("div");
-brand.className = "brand";
-brand.innerHTML = LOGO;
-top.insertAdjacentElement("afterend", brand);
-/* Si un jour tu ajoutes logo.png au dépôt, il remplace le dessin automatiquement */
-var im = new Image();
-im.alt = "Dukyo";
-im.onload = function () { brand.innerHTML = ""; brand.appendChild(im); };
-im.src = "logo.png";
+top.insertAdjacentHTML("afterbegin", '<div class="minilogo">' + logo("m", false) + "</div>");
+var bv = $x("bienvenue");
+if (bv) { bv.insertAdjacentHTML("afterbegin", '<div class="biglogo">' + logo("g", true) + "</div>"); }
 
 var sl = document.querySelector('.card > p.sub[data-t="slogan"]');
 if (sl) { sl.style.display = "none"; }
